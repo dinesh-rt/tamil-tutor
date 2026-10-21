@@ -1,0 +1,13 @@
+dist/*
+!dist/tamil-tutor.html
+.DS_Store
+*.log
+node_modules/
+.vscode/
+.idea/
+tools/.venv-tts/
+tools/__pycache__/
+__pycache__/
+
+# generated voice pack — regenerate with `npm run voices`, or ship it as a release asset / LFS
+audio/
