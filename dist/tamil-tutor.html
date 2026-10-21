@@ -2846,7 +2846,7 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     if (memoryOnly) return;
     try {
       localStorage.setItem(KEY, JSON.stringify(db));
-      persistError = null; recoveredFromBackup = false;
+      persistError = null;              // recoveredFromBackup stays for the session: the Data panel should still be able to say so
     } catch (e) {
       memoryOnly = true;                       // full, private mode, or iOS purge
       persistError = (e && e.name) || String(e);
