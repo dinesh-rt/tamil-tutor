@@ -1,0 +1,17 @@
+# Treat generated output as generated — GitHub shouldn't count it as source
+dist/** linguist-generated
+audio/** linguist-generated
+tools/.venv-tts/** linguist-generated
+
+*.html text eol=lf
+*.js   text eol=lf
+*.css  text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+
+*.mp3 binary
+*.png binary
+*.zip binary
+
+# If you ever want the voice pack in history, install git-lfs and uncomment:
+# *.mp3 filter=lfs diff=lfs merge=lfs -text
