@@ -451,7 +451,10 @@ git push -u origin master --follow-tags
 What does and doesn't go up: source, tests-as-documentation and the small
 shareable `dist/tamil-tutor.html` are tracked; the multi-megabyte `audio/`,
 `dist/portable/`, the zip and the offline file are ignored — attach those to a
-GitHub **Release** instead (draft one with `npm run release` output). GitHub Actions
+GitHub **Release** instead — the text to paste in is already written, in
+`RELEASE-NOTES.md`. Its checksum block refers to the build it was written
+against; anything you rebuild changes them, so re-print the current ones with
+`sha256sum dist/*` (or re-run the snippet at the bottom of that file). GitHub Actions
 runs `python3 tools/verify.py` on every push: syntax, word bank and a bundle, with
 no npm install and no network. The browser suites are not in CI on purpose — run
 `npm test` on your own machine.
