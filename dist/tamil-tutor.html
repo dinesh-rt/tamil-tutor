@@ -2510,12 +2510,25 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     speakNext();
   }
 
+  /* ழ (and to a lesser extent ற) has no English equivalent, so an English voice
+     reading the school romanisation "zh" makes a mess of it - this respelling is
+     applied ONLY to the spoken hint when the device has no Tamil voice. What is
+     printed on the card never changes, and a Tamil voice or a recording always
+     wins over any of this. */
+  function respell(text, style) {
+    if (!text) return text;
+    if (style == null) style = 'l';
+    if (style === 'keep') return text;
+    var to = (style === 'r') ? 'r' : 'l';
+    return text.replace(/[zZ]h/g, function (m) { return m.charAt(0) === 'Z' ? to.toUpperCase() : to; });
+  }
+
   function speakText(text, opts) {
     opts = opts || {};
     var s = TT.store ? TT.store.settings : {};
     if (opts.lang === 'ta' && !hasVoiceFor('ta') && !opts.forceLang) {
       /* No Tamil voice on this device → read the romanisation with an Indian English voice */
-      text = opts.roman || text;
+      text = respell(opts.roman || text, s.zhStyle);
       opts.lang = 'en-IN';
     }
     enqueue({
@@ -2545,10 +2558,16 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     var s = TT.store ? TT.store.settings : {};
     if (s.muted || !word || !word.say) return;
     cancel();
-    if (!word.id || !packOn()) { speakText(word.say, { lang: 'ta', roman: word.say, onend: opts.onend }); return; }
+    /* An English voice cannot read Tamil script at all, so a sentence would come out
+       as noise. Better to hear the word clearly than the sentence as garbage. */
+    function fallback() {
+      if (hasVoiceFor('ta')) speakText(word.say, { lang: 'ta', roman: word.sayRo || null, onend: opts.onend });
+      else sayWord(word, { only: 'ta', repeats: 1, onend: opts.onend });
+    }
+    if (!word.id || !packOn()) { fallback(); return; }
     var url = clipUrl(word.id, 'say');
-    if (!url) { speakText(word.say, { lang: 'ta', roman: word.say, onend: opts.onend }); return; }
-    playClip(url, { onend: opts.onend, onerror: function () { speakText(word.say, { lang: 'ta', roman: word.say, onend: opts.onend }); } });
+    if (!url) { fallback(); return; }
+    playClip(url, { onend: opts.onend, onerror: fallback });
   }
 
   /** Say a word the way the parent configured it (Tamil, English, repeats…). */
@@ -2721,6 +2740,7 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     sfx: sfx,
     voices: voiceList,
     bestVoice: bestVoice,
+    respell: respell,
     hasVoiceFor: hasVoiceFor,
     isSpeaking: function () { return speaking || (synth ? synth.speaking : false); },
     sfxNames: Object.keys(SFX),
@@ -2792,6 +2812,7 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     localVoicesOnly: false,        // never use a network voice
     useRecordings: true,          // prefer the human audio pack when it exists
     clipRate: 1,                  // playback speed for recordings
+    zhStyle: 'l',                 // how the spoken hint renders ழ with no Tamil voice: l | r | keep
     muted: false,
     sfx: true, sfxVolume: 0.55,
     /* pacing */
@@ -4963,6 +4984,20 @@ html[data-motion="reduced"] .pic { animation: none !important; }
       sliderRow('volume', 'Voice volume', 0.2, 1, 0.05, function (v) { return Math.round(v * 100) + '%'; }),
       voiceSelect('voiceTa', 'ta', 'Tamil voice'),
       voiceSelect('voiceEn', 'en', 'English voice'),
+      (function () {
+        var demo = D.getWord('animals/donkey') || { en: 'Donkey', ta: 'கழுதை', ro: 'kazhuthai' };
+        var hear = U.el('button.chip', { type: 'button' }, [U.el('span.chip-ico', { text: '🔊' }), U.el('span', { text: 'Hear it' })]);
+        hear.addEventListener('click', function () { A.unlock(); A.cancel(); A.sayWord(demo, { only: 'ta', repeats: 1 }); });
+        return [
+          segRow('zhStyle', 'The Tamil “zh” sound, with no Tamil voice', [
+            { v: 'l', l: 'as “l” · ka-lu-thai' },
+            { v: 'r', l: 'as “r” · ka-ru-thai' },
+            { v: 'keep', l: 'as “zh” · ka-zhuthai' }
+          ], function () { A.cancel(); A.sayWord(demo, { only: 'ta', repeats: 1 }); }),
+          U.el('p.panel-note', { text: 'Only used when this device has no Tamil voice and the recordings are switched off — an English voice has no way to say “zh”. The letters printed on the card never change, and a Tamil voice or a real recording always wins over this.' }),
+          U.el('div.chip-row', {}, [hear])
+        ];
+      })(),
       switchRow('sfx', 'Play sounds (taps, stars, cheers)', null, function () { if (TT.repaintSound) TT.repaintSound(); }),
       sliderRow('sfxVolume', 'Sound effect volume', 0, 1, 0.05, function (v) { return Math.round(v * 100) + '%'; }),
       (function () {
@@ -5179,7 +5214,7 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     try { taName = (A2.bestVoice('ta') || {}).name || ''; } catch (e) { }
     add(ta ? 'ok' : 'warn', 'Tamil voice',
       ta ? taName : 'no Tamil voice — Tamil words fall back to the sounding-out letters',
-      ta ? '' : 'Android: Settings → System → Languages → add Tamil, then text-to-speech voices. iPhone: Settings → Accessibility → Spoken Content → Voices → Tamil. Or switch on the recordings, which sound better anyway.');
+      ta ? '' : 'Android: Settings → System → Languages → add Tamil, then text-to-speech voices. iPhone: Settings → Accessibility → Spoken Content → Voices → Tamil. Or switch on the recordings, which sound better anyway. Until you do either, Speech & sound → “The Tamil “zh” sound” chooses how the app fakes it.');
 
     var pk = (A2 && A2.packStatus) ? A2.packStatus() : { available: false };
     var useRec = S2.settings.useRecordings !== false;

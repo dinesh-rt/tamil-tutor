@@ -33,6 +33,7 @@ const SUITES = [
   { file: 'infra.js', what: 'storage migrations, save-failure warning, update bar' },
   { file: 'today.js', what: 'leitner boxes, due queue, today\'s deck and route' },
   { file: 'checkup.js', what: 'grown-up device check-up panel' },
+  { file: 'zh.js', what: 'the ழ sound: spoken respelling, card letters, sentence fallback' },
   { file: 'layout.js', what: 'overflow / tap-size audit', audit: true }
 ];
 

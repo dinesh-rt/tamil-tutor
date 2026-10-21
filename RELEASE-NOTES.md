@@ -94,7 +94,7 @@ things safely: see `README.md`.
 ### Checksums for the files attached to this release
 
 ```
-034bdc38ed38bbaf6c1d9f41f8cd781eb1e3b9b858b58cb850eedc60a4b93e0c  tamil-tutor-portable.zip  (14.2 MB)
-b5609390acb2b4132896f7a705ca6f4f92c685aaed0b4a23c039f04a9308cdcb  tamil-tutor-offline.html  (20.0 MB)
-0b1fa3425541b97a584eb376d3e8b84ef1c3e1c9a8100b3c32d68e334afe6f7e  tamil-tutor.html  (0.3 MB)
+a6f481ba9fb788e4ceb4f918880a78cf19ac10f27508583909ad9c258a8e9215  tamil-tutor-portable.zip  (14.2 MB)
+88611b4b2e5f4e799a5e5dcf20e64c02528b858593306038644696c098e12a43  tamil-tutor-offline.html  (20.0 MB)
+c63b6790a97f6d4df8b07585749c4ada5158a97fe2d78579a5bc841dcffc99b9  tamil-tutor.html  (0.3 MB)
 ```

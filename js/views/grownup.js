@@ -181,6 +181,20 @@
       sliderRow('volume', 'Voice volume', 0.2, 1, 0.05, function (v) { return Math.round(v * 100) + '%'; }),
       voiceSelect('voiceTa', 'ta', 'Tamil voice'),
       voiceSelect('voiceEn', 'en', 'English voice'),
+      (function () {
+        var demo = D.getWord('animals/donkey') || { en: 'Donkey', ta: 'கழுதை', ro: 'kazhuthai' };
+        var hear = U.el('button.chip', { type: 'button' }, [U.el('span.chip-ico', { text: '🔊' }), U.el('span', { text: 'Hear it' })]);
+        hear.addEventListener('click', function () { A.unlock(); A.cancel(); A.sayWord(demo, { only: 'ta', repeats: 1 }); });
+        return [
+          segRow('zhStyle', 'The Tamil “zh” sound, with no Tamil voice', [
+            { v: 'l', l: 'as “l” · ka-lu-thai' },
+            { v: 'r', l: 'as “r” · ka-ru-thai' },
+            { v: 'keep', l: 'as “zh” · ka-zhuthai' }
+          ], function () { A.cancel(); A.sayWord(demo, { only: 'ta', repeats: 1 }); }),
+          U.el('p.panel-note', { text: 'Only used when this device has no Tamil voice and the recordings are switched off — an English voice has no way to say “zh”. The letters printed on the card never change, and a Tamil voice or a real recording always wins over this.' }),
+          U.el('div.chip-row', {}, [hear])
+        ];
+      })(),
       switchRow('sfx', 'Play sounds (taps, stars, cheers)', null, function () { if (TT.repaintSound) TT.repaintSound(); }),
       sliderRow('sfxVolume', 'Sound effect volume', 0, 1, 0.05, function (v) { return Math.round(v * 100) + '%'; }),
       (function () {
@@ -397,7 +411,7 @@
     try { taName = (A2.bestVoice('ta') || {}).name || ''; } catch (e) { }
     add(ta ? 'ok' : 'warn', 'Tamil voice',
       ta ? taName : 'no Tamil voice — Tamil words fall back to the sounding-out letters',
-      ta ? '' : 'Android: Settings → System → Languages → add Tamil, then text-to-speech voices. iPhone: Settings → Accessibility → Spoken Content → Voices → Tamil. Or switch on the recordings, which sound better anyway.');
+      ta ? '' : 'Android: Settings → System → Languages → add Tamil, then text-to-speech voices. iPhone: Settings → Accessibility → Spoken Content → Voices → Tamil. Or switch on the recordings, which sound better anyway. Until you do either, Speech & sound → “The Tamil “zh” sound” chooses how the app fakes it.');
 
     var pk = (A2 && A2.packStatus) ? A2.packStatus() : { available: false };
     var useRec = S2.settings.useRecordings !== false;

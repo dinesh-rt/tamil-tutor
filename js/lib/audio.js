@@ -272,12 +272,25 @@
     speakNext();
   }
 
+  /* ழ (and to a lesser extent ற) has no English equivalent, so an English voice
+     reading the school romanisation "zh" makes a mess of it - this respelling is
+     applied ONLY to the spoken hint when the device has no Tamil voice. What is
+     printed on the card never changes, and a Tamil voice or a recording always
+     wins over any of this. */
+  function respell(text, style) {
+    if (!text) return text;
+    if (style == null) style = 'l';
+    if (style === 'keep') return text;
+    var to = (style === 'r') ? 'r' : 'l';
+    return text.replace(/[zZ]h/g, function (m) { return m.charAt(0) === 'Z' ? to.toUpperCase() : to; });
+  }
+
   function speakText(text, opts) {
     opts = opts || {};
     var s = TT.store ? TT.store.settings : {};
     if (opts.lang === 'ta' && !hasVoiceFor('ta') && !opts.forceLang) {
       /* No Tamil voice on this device → read the romanisation with an Indian English voice */
-      text = opts.roman || text;
+      text = respell(opts.roman || text, s.zhStyle);
       opts.lang = 'en-IN';
     }
     enqueue({
@@ -307,10 +320,16 @@
     var s = TT.store ? TT.store.settings : {};
     if (s.muted || !word || !word.say) return;
     cancel();
-    if (!word.id || !packOn()) { speakText(word.say, { lang: 'ta', roman: word.say, onend: opts.onend }); return; }
+    /* An English voice cannot read Tamil script at all, so a sentence would come out
+       as noise. Better to hear the word clearly than the sentence as garbage. */
+    function fallback() {
+      if (hasVoiceFor('ta')) speakText(word.say, { lang: 'ta', roman: word.sayRo || null, onend: opts.onend });
+      else sayWord(word, { only: 'ta', repeats: 1, onend: opts.onend });
+    }
+    if (!word.id || !packOn()) { fallback(); return; }
     var url = clipUrl(word.id, 'say');
-    if (!url) { speakText(word.say, { lang: 'ta', roman: word.say, onend: opts.onend }); return; }
-    playClip(url, { onend: opts.onend, onerror: function () { speakText(word.say, { lang: 'ta', roman: word.say, onend: opts.onend }); } });
+    if (!url) { fallback(); return; }
+    playClip(url, { onend: opts.onend, onerror: fallback });
   }
 
   /** Say a word the way the parent configured it (Tamil, English, repeats…). */
@@ -483,6 +502,7 @@
     sfx: sfx,
     voices: voiceList,
     bestVoice: bestVoice,
+    respell: respell,
     hasVoiceFor: hasVoiceFor,
     isSpeaking: function () { return speaking || (synth ? synth.speaking : false); },
     sfxNames: Object.keys(SFX),

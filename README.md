@@ -391,6 +391,32 @@ Usually one of these, in order of how often it happens:
 4. **The recordings are switched off, or missing** — Grown-up corner → *Speech &
    sound*, and the check-up panel will say which it is.
 
+### The ழ sound
+
+ழ is the Tamil letter with no equivalent in any other language — a sound made by
+curling the tongue back, usually written **zh**. An English voice has never seen
+those two letters together and produces a squelch, which is what "the app sounds
+distorted" usually turns out to be. So when the device has no Tamil voice *and*
+the recordings are off, the app stops handing `kazhuthai` to an English voice and
+asks for a spelling it can manage — **Grown-up corner → Speech & sound → The
+Tamil "zh" sound**:
+
+| choice | the donkey comes out as |
+|---|---|
+| as "l" *(default)* | ka-**lu**-thai — closest to the real thing on an Indian English voice |
+| as "r" | ka-**ru**-thai |
+| as "zh" | exactly as written (the old behaviour) |
+
+Choosing one speaks the donkey straight away, so you can hear the difference on
+the phone in your hand rather than argue about it. **The letters printed on the
+card never change** — `zh` is the spelling schools use and it stays. A Tamil voice,
+or a real recording, always wins over all of this: the recordings in the portable
+and offline builds pronounce ழ properly, so the fake is never used at all.
+
+The same care covers sentences: with no Tamil voice, a Tamil sentence is not read
+as Tamil script by an English voice — that is pure noise — the app says the word
+instead.
+
 ---
 
 ## Making changes safely

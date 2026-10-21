@@ -22,6 +22,7 @@
     localVoicesOnly: false,        // never use a network voice
     useRecordings: true,          // prefer the human audio pack when it exists
     clipRate: 1,                  // playback speed for recordings
+    zhStyle: 'l',                 // how the spoken hint renders ழ with no Tamil voice: l | r | keep
     muted: false,
     sfx: true, sfxVolume: 0.55,
     /* pacing */
