@@ -371,6 +371,25 @@ Routing is plain hashes: `#/`, `#/learn`, `#/cat/animals`, `#/cards/animals`,
   child — picture first, word after a tap.
 * Add the words your family actually says — *apa*, *kuzhandai*, the pet's name —
   in *Your own words*. Children light up at those.
+* If something is odd on a phone, don't guess: **Grown-up corner → Check on this
+  device → 🩺 Run checks**. One line per thing that can go wrong — no Tamil voice,
+  recordings not found, browser refusing to save, offline copy missing, tap
+  targets too small — each with what to do about it. **📋 Copy report** puts the
+  whole thing on the clipboard so you can paste it to someone who can help.
+
+### If the app is silent
+
+Usually one of these, in order of how often it happens:
+
+1. **No Tamil voice installed** — the app still speaks, using the sounding-out
+   letters. Either install the voice (check-up tells you where) or use the
+   recordings, which sound better anyway.
+2. **The phone is waiting for a tap** — browsers will not let any page make sound
+   until you touch it once. Tap the 📢 button, or any card.
+3. **🔇 got pressed** — the speaker in the top corner mutes everything, sounds and
+   speech alike.
+4. **The recordings are switched off, or missing** — Grown-up corner → *Speech &
+   sound*, and the check-up panel will say which it is.
 
 ---
 
@@ -416,6 +435,30 @@ keep `dist/portable/`, the zip and `dist/tamil-tutor-offline.html` out of histor
 (~49 MB of regeneratable output that git would remember forever). Tag a release and
 attach the zip to it — or keep the 14 MB of mp3s in Git LFS / release assets, since
 `npm run voices` needs Microsoft's servers and cannot be replayed offline.
+
+## Keeping a copy somewhere safe
+
+Right now the app lives on one disk, and the 1,400-odd recordings can only be
+re-made with an internet connection. A private repo fixes the first half in two
+commands (create `tamil-tutor` on GitHub first, **without** a README or licence,
+since this repo already has both):
+
+```bash
+git remote add origin https://github.com/<you>/tamil-tutor.git   # already set for dinesh-rt
+git push -u origin master --follow-tags
+```
+
+What does and doesn't go up: source, tests-as-documentation and the small
+shareable `dist/tamil-tutor.html` are tracked; the multi-megabyte `audio/`,
+`dist/portable/`, the zip and the offline file are ignored — attach those to a
+GitHub **Release** instead (draft one with `npm run release` output). GitHub Actions
+runs `python3 tools/verify.py` on every push: syntax, word bank and a bundle, with
+no npm install and no network. The browser suites are not in CI on purpose — run
+`npm test` on your own machine.
+
+If you later decide the recordings belong in history, install `git-lfs`,
+uncomment the `*.mp3` line in `.gitattributes`, and move them in with
+`git lfs migrate`.
 
 ## Licence
 

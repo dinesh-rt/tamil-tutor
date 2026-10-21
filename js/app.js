@@ -433,6 +433,8 @@
     }
   }
 
+  TT.version = '1.0.0';
+
   TT.app = {
     go: go, render: render, views: views, applyTheme: applyTheme, boot: boot,
     registerCustomWords: registerCustomWords, offerUpdate: offerUpdate,

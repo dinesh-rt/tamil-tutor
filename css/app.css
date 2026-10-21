@@ -642,3 +642,36 @@ html[data-motion="reduced"] * { animation: none !important; transition-duration:
   border-radius: 26px;
   padding: 4px 12px 12px;
 }
+
+/* ------------------------------------------------------- device check-up panel */
+.panel-note { opacity: .78; font-size: .95rem; margin: 0 0 10px; line-height: 1.4; }
+.check-list { display: grid; gap: 8px; margin-top: 10px; }
+.check-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: var(--surface);
+  border-left: 6px solid var(--line);
+}
+.check-row[data-state="ok"] { border-left-color: var(--leaf); }
+.check-row[data-state="warn"] { border-left-color: var(--sun); }
+.check-row[data-state="bad"] { border-left-color: var(--rose); }
+.check-dot {
+  flex: none;
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--line);
+  color: #fff;
+  font-weight: 900;
+  font-size: .95rem;
+}
+.check-row[data-state="ok"] .check-dot { background: var(--leaf); }
+.check-row[data-state="warn"] .check-dot { background: var(--sun); }
+.check-row[data-state="bad"] .check-dot { background: var(--rose); }
+.check-body { min-width: 0; }
+.check-label { font-weight: 800; margin: 0; }
+.check-detail { margin: 2px 0 0; font-size: .92rem; opacity: .85; overflow-wrap: anywhere; }
+.check-fix { margin: 4px 0 0; font-size: .9rem; color: var(--grape); overflow-wrap: anywhere; }

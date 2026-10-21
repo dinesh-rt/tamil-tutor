@@ -660,6 +660,39 @@ html[data-motion="reduced"] * { animation: none !important; transition-duration:
   padding: 4px 12px 12px;
 }
 
+/* ------------------------------------------------------- device check-up panel */
+.panel-note { opacity: .78; font-size: .95rem; margin: 0 0 10px; line-height: 1.4; }
+.check-list { display: grid; gap: 8px; margin-top: 10px; }
+.check-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: var(--surface);
+  border-left: 6px solid var(--line);
+}
+.check-row[data-state="ok"] { border-left-color: var(--leaf); }
+.check-row[data-state="warn"] { border-left-color: var(--sun); }
+.check-row[data-state="bad"] { border-left-color: var(--rose); }
+.check-dot {
+  flex: none;
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--line);
+  color: #fff;
+  font-weight: 900;
+  font-size: .95rem;
+}
+.check-row[data-state="ok"] .check-dot { background: var(--leaf); }
+.check-row[data-state="warn"] .check-dot { background: var(--sun); }
+.check-row[data-state="bad"] .check-dot { background: var(--rose); }
+.check-body { min-width: 0; }
+.check-label { font-weight: 800; margin: 0; }
+.check-detail { margin: 2px 0 0; font-size: .92rem; opacity: .85; overflow-wrap: anywhere; }
+.check-fix { margin: 4px 0 0; font-size: .9rem; color: var(--grape); overflow-wrap: anywhere; }
+
 </style>
 <style>
 /* ===== css/animations.css ===== */
@@ -3919,6 +3952,8 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     }
   }
 
+  TT.version = '1.0.0';
+
   TT.app = {
     go: go, render: render, views: views, applyTheme: applyTheme, boot: boot,
     registerCustomWords: registerCustomWords, offerUpdate: offerUpdate,
@@ -5023,6 +5058,7 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     host.appendChild(section('Data', 'தரவு', dataNodes()));
 
     /* help ----------------------------------------------------------------- */
+    host.appendChild(section('Check on this device', 'சாதனம் சரிபார்ப்பு', checkupNodes()));
     host.appendChild(section('Help', 'உதவி', [
       U.el('ul.help-list', {}, [
         U.el('li', {}, [U.el('b', { text: 'Offline: ' }), 'open the app once and it caches itself. Add it to the home screen (share → Add to Home Screen) so it opens full-screen with no browser bar.']),
@@ -5115,6 +5151,161 @@ html[data-motion="reduced"] .pic { animation: none !important; }
   }
 
   /* -------------------------------------------------------------- data tools */
+
+  /* ------------------------------------------------- check on this device
+     Turns "does it work on a phone?" into something a grown-up can read on the
+     phone itself: one line per thing that can be wrong, plus what to do about it. */
+  function checkRow(r) {
+    var kids = [U.el('span.check-dot', { text: r.state === 'ok' ? '✓' : r.state === 'warn' ? '!' : '✗', 'aria-hidden': 'true' })];
+    var body = [U.el('p.check-label', { text: r.label })];
+    if (r.detail) body.push(U.el('p.check-detail', { text: r.detail }));
+    if (r.fix) body.push(U.el('p.check-fix', { text: r.fix }));
+    kids.push(U.el('div.check-body', {}, body));
+    return U.el('div.check-row', { dataset: { state: r.state } }, kids);
+  }
+
+  function gatherChecks(cb) {
+    var rows = [];
+    function add(state, label, detail, fix) { rows.push({ state: state, label: label, detail: detail, fix: fix }); }
+    var S2 = TT.store, A2 = TT.audio;
+
+    var voices = (A2 && A2.voices) ? A2.voices() : [];
+    add(voices.length ? 'ok' : 'warn', 'Device voices',
+      voices.length ? voices.length + ' voice' + (voices.length === 1 ? '' : 's') + ' installed' : 'none found by the browser',
+      voices.length ? '' : 'Install a speech voice in the phone settings — or rely on the recordings below, which need no voice at all.');
+
+    var ta = (A2 && A2.hasVoiceFor) ? A2.hasVoiceFor('ta') : false;
+    var taName = '';
+    try { taName = (A2.bestVoice('ta') || {}).name || ''; } catch (e) { }
+    add(ta ? 'ok' : 'warn', 'Tamil voice',
+      ta ? taName : 'no Tamil voice — Tamil words fall back to the sounding-out letters',
+      ta ? '' : 'Android: Settings → System → Languages → add Tamil, then text-to-speech voices. iPhone: Settings → Accessibility → Spoken Content → Voices → Tamil. Or switch on the recordings, which sound better anyway.');
+
+    var pk = (A2 && A2.packStatus) ? A2.packStatus() : { available: false };
+    var useRec = S2.settings.useRecordings !== false;
+    add(pk.available && useRec ? 'ok' : 'warn', 'Real recordings',
+      pk.available ? (pk.clips || 0) + ' clips for ' + (pk.words || 0) + ' words' + (pk.embedded ? ' (inside the file)' : '') + (useRec ? '' : ' — but switched off') : 'not found — the app is using device voices',
+      pk.available ? (useRec ? '' : 'Turn “Use the real recordings” on above.') : 'Run `npm run voices` beside the app, or use the portable/offline build that carries them inside.');
+
+    var st = S2.storageStatus ? S2.storageStatus() : { persist: true };
+    add(st.persist ? 'ok' : 'bad', 'Progress saving',
+      st.persist ? (st.words + ' words remembered · save format v' + st.version + (st.recovered ? ' · repaired once from a backup' : '')) : 'this browser will not keep anything' + (st.error ? ' (' + st.error + ')' : ''),
+      st.persist ? '' : 'Private/incognito tabs and full storage do this. Add the app to the home screen, or use Data → Export before you close the tab.');
+
+    var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+    var served = /^https?:$/.test(location.protocol);
+    add(standalone ? 'ok' : served ? 'warn' : 'ok', 'How it is opened',
+      standalone ? 'full-screen app from the home screen' : served ? 'a browser tab' : 'a file on this device — install buttons are off, everything else works',
+      standalone ? '' : served ? 'Menu → “Add to Home screen” to make it an app that also works with the Wi-Fi off.' : '');
+
+    add(served ? 'ok' : 'warn', 'Connection',
+      (navigator.onLine ? 'online' : 'offline — playing from memory') + (served ? '' : ' · file:// so the app never needs a server'),
+      '');
+
+    var vp = (window.innerWidth || 0) + '×' + (window.innerHeight || 0);
+    var small = 0, n = 0;
+    // only things a toddler would tap: grown-up settings may stay small on purpose
+    U.qsa('.mini, .btn, .tile, .tabbar button, .brand').forEach(function (el) {
+      if (el.closest('.panel')) return;
+      var b = el.getBoundingClientRect();
+      if (b.width && b.height) { n++; if (Math.min(b.width, b.height) < 44) small++; }
+    });
+    var nothing = !n;
+    add(nothing ? 'warn' : (small ? 'warn' : 'ok'), 'Screen and tap targets',
+      nothing ? vp + ' · no cards on this screen to measure'
+        : vp + ' · ' + n + ' buttons measured' + (small ? ', ' + small + ' smaller than a toddler finger (44px)' : ', all big enough'),
+      nothing ? 'Run the checks again from Home, where the word cards are on screen.'
+        : small ? 'Widening the targets is a job for the grown-ups — tell us the screen size and which buttons.' : '');
+
+    var rm = (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) || S2.settings.reduceMotion;
+    add('ok', 'Motion', (rm ? 'reduced motion is on — the app keeps still' : 'full animation') + (S2.settings.reduceMotion ? ' (switched on in settings)' : ''));
+
+    var ac = window.AudioContext || window.webkitAudioContext;
+    add(ac ? 'ok' : 'warn', 'Sound effects', ac ? (A2 && A2.ctx && A2.ctx.state ? 'audio engine ' + A2.ctx.state : 'ready, starts on the first tap') : 'this browser has no WebAudio', '');
+
+    // two checks need a promise — fill them in when they answer
+    var swRow = { state: 'warn', label: 'Works with the Wi-Fi off', detail: 'checking…', fix: 'Menu → Add to Home Screen, then let it cache once.' };
+    rows.push(swRow);
+    var finish = function () { if (cb) cb(rows); };
+    var after = function () {
+      if (!('caches' in window)) { finish(); return; }
+      caches.keys().then(function (keys) {
+        if (!keys.length) { finish(); return; }
+        caches.open(keys[0]).then(function (c) { return c.keys(); }).then(function (reqs) {
+          var mp3 = reqs.filter(function (r) { return /\.mp3$/.test(r.url); }).length;
+          rows.push({ state: mp3 ? 'ok' : 'warn', label: 'Voices kept for offline', detail: mp3 ? mp3 + ' clips cached on this device' : 'nothing cached yet', fix: mp3 ? '' : 'Play a few words with the Wi-Fi on, or use 🎧 Save all voices for offline.' });
+          finish();
+        }, finish);
+      }, finish);
+    };
+    if ('serviceWorker' in navigator && served) {
+      navigator.serviceWorker.getRegistration().then(function (reg) {
+        swRow.state = reg && reg.active ? 'ok' : 'warn';
+        swRow.detail = reg && reg.active ? 'offline copy is active' : 'no offline copy on this device';
+        if (reg && reg.active) swRow.fix = '';
+        after();
+      }, after);
+    } else { swRow.state = 'ok'; swRow.detail = served ? 'checking…' : 'not needed — opened as a file'; after(); }
+  }
+
+  function checkupText() {
+    var lines = ['Tamil Tutor check-up', 'app v' + (TT.version || '?') + ' · ' + new Date().toLocaleString(), 'ua: ' + navigator.userAgent];
+    gatherChecks(function (rows) {
+      rows.forEach(function (r) {
+        lines.push((r.state === 'ok' ? '[ok] ' : r.state === 'warn' ? '[!] ' : '[x] ') + r.label + (r.detail ? ' — ' + r.detail : '') + (r.fix ? '  → ' + r.fix : ''));
+      });
+    });
+    return lines.join('\n');
+  }
+
+  function checkupNodes() {
+    var list = U.el('div.check-list', { role: 'status', 'aria-live': 'polite' });
+    var run = U.el('button.chip', { type: 'button' }, [U.el('span.chip-ico', { text: '🩺' }), U.el('span', { text: 'Run checks' })]);
+    var copy = U.el('button.chip', { type: 'button' }, [U.el('span.chip-ico', { text: '📋' }), U.el('span', { text: 'Copy report' })]);
+    var hear = U.el('button.chip', { type: 'button' }, [U.el('span.chip-ico', { text: '🔊' }), U.el('span', { text: 'Hear a test word' })]);
+
+    function paint(rows) {
+      U.clear(list);
+      if (!rows.length) { U.append(list, U.el('p.check-detail', { text: 'Nothing to check.' })); return; }
+      rows.forEach(function (r) { U.append(list, checkRow(r)); });
+    }
+
+    run.addEventListener('click', function () {
+      A.unlock(); A.sfx('tap');
+      U.clear(list);
+      U.append(list, U.el('p.check-detail', { text: 'Looking…' }));
+      gatherChecks(paint);
+    });
+
+    copy.addEventListener('click', function () {
+      var text = '';
+      gatherChecks(function (rows) {
+        text = ['Tamil Tutor check-up', navigator.userAgent].concat(rows.map(function (r) {
+          return (r.state === 'ok' ? '[ok] ' : r.state === 'warn' ? '[!] ' : '[x] ') + r.label + (r.detail ? ' — ' + r.detail : '') + (r.fix ? '  → ' + r.fix : '');
+        })).join('\n');
+        var done = function () { UI.toast('Report copied — paste it into a message'); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, function () { UI.toast(text ? text.slice(0, 40) + '…' : 'nothing to copy'); });
+        } else {
+          var taEl = U.el('textarea', { style: 'position:fixed;left:-9999px', value: text });
+          document.body.appendChild(taEl); taEl.select();
+          try { document.execCommand('copy'); done(); } catch (e) { }
+          taEl.remove();
+        }
+      });
+    });
+
+    hear.addEventListener('click', function () {
+      A.unlock(); A.cancel();
+      var pk = A.packStatus ? A.packStatus() : { available: false };
+      var word = D.getWord('animals/dog') || D.allWords()[0];
+      A.sayWord(word, { repeats: 1 });
+      UI.toast(pk.available && S.settings.useRecordings !== false ? 'Playing the real recording' : 'Using the device voice' + (A.hasVoiceFor && A.hasVoiceFor('ta') ? ' (Tamil)' : ' (letters, no Tamil voice)'));
+    });
+
+    return [U.el('p.panel-note', { text: 'Everything the app needs, checked on the device you are holding — useful before you blame the app for a silent phone.' }),
+      U.el('div.chip-row', {}, [run, copy, hear]), list];
+  }
 
   function dataNodes() {
     var nodes = [];

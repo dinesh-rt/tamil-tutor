@@ -3,7 +3,7 @@
    hand); old caches are cleaned up on activate. */
 'use strict';
 
-const VERSION = 'v2026.10.21';
+const VERSION = 'v2026.10.21b';
 const CACHE = 'tamil-tutor-' + VERSION;
 
 const ASSETS = [
