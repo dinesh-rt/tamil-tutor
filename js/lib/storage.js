@@ -46,7 +46,7 @@
     byCat: {}
   };
 
-  var CURRENT_VERSION = 2;
+  var CURRENT_VERSION = 3;
 
   function blank() {
     return { version: CURRENT_VERSION, settings: Object.assign({}, DEFAULTS), progress: JSON.parse(JSON.stringify(EMPTY_PROGRESS)), custom: [] };
@@ -69,6 +69,21 @@
           seen: r.seen || 0, correct: r.correct || 0, wrong: r.wrong || 0,
           best: r.best || 0, first: r.first || 0, last: r.last || 0, box: r.box || 0
         };
+      });
+      d.progress.words = words;
+      return d;
+    },
+    3: function (d) {                    // place existing progress into the Leitner boxes
+      var now = Date.now(), words = (d.progress && d.progress.words) || {};
+      Object.keys(words).forEach(function (id) {
+        var r = words[id] || {};
+        if (!r.box && r.seen) {          // guess a starting box from what we already know
+          r.box = (r.correct >= 4 || (r.correct >= 3 && r.seen >= 8)) ? 4
+            : (r.correct >= 1 || r.seen >= 4) ? 2 : 1;
+        }
+        r.box = r.box || 0;
+        r.next = r.next || now;          // everything met so far comes back today
+        words[id] = r;
       });
       d.progress.words = words;
       return d;
@@ -130,9 +145,15 @@
 
   /* ------------------------------------------------------------- progress api */
 
+    /* ------------------------------------------------------- spaced repetition
+     Each word sits in a box 0-4. Answer it right and it moves up (back in 1, 3,
+     7 or 21 days); get it wrong and it drops to today. */
+  var BOX_DAYS = [0, 1, 3, 7, 21];
+  var DAY = 864e5;
+
   function wordRec(id) {
     var r = db.progress.words[id];
-    if (!r) r = db.progress.words[id] = { seen: 0, correct: 0, wrong: 0, first: 0, last: 0 };
+    if (!r) r = db.progress.words[id] = { seen: 0, correct: 0, wrong: 0, first: 0, last: 0, box: 0, next: 0 };
     return r;
   }
 
@@ -140,6 +161,7 @@
     var r = wordRec(id);
     r.seen++; r.last = Date.now();
     if (!r.first) r.first = r.last;
+    if (!r.box) r.next = r.next || r.last;      // brand-new words are due for a first look
     var cat = id.split('/')[0];
     db.progress.byCat[cat] = (db.progress.byCat[cat] || 0) + 1;
     save();
@@ -148,8 +170,10 @@
 
   function markAnswer(id, correct) {
     var r = wordRec(id);
-    if (correct) { r.correct++; } else { r.wrong++; }
+    if (correct) { r.correct++; r.box = Math.min(BOX_DAYS.length - 1, (r.box || 0) + 1); }
+    else { r.wrong++; r.box = 0; }
     r.last = Date.now();
+    r.next = r.last + BOX_DAYS[r.box] * DAY;
     save();
     return r;
   }
@@ -191,21 +215,69 @@
     };
   }
 
-  /** Words worth revisiting: mis-tapped, or seen a lot without ever getting one right. */
+  /** Words worth revisiting: mis-tapped, overdue in their box, or seen a lot without ever getting one right. */
   function reviewQueue(catKey, limit) {
     var pool = catKey ? TT.data.catWords(catKey) : TT.data.allWords();
-    var scored = [];
+    var now = Date.now(), scored = [];
     pool.forEach(function (w) {
       var r = db.progress.words[w.id];
       if (!r) return;
       var score = 0;
       if (r.wrong >= 1) score += 3 + Math.min(4, r.wrong);
       if (r.seen >= 3 && r.correct === 0) score += 3;
+      if ((r.next || 0) && r.next <= now) score += 4 - Math.min(3, r.box || 0);   // overdue counts
       if (level(w.id) === 0) score -= 5;
       if (score > 0) scored.push({ w: w, s: score });
     });
     scored.sort(function (a, b) { return b.s - a.s; });
     return scored.slice(0, limit || 12).map(function (x) { return x.w; });
+  }
+
+  /** Overdue words, most-needed first. */
+  function dueWords(limit, now) {
+    now = now || Date.now();
+    var picked = TT.data.allWords().filter(function (w) {
+      var r = db.progress.words[w.id];
+      return !!r && r.seen > 0 && (r.next || 0) <= now;
+    });
+    picked.sort(function (a, b) {
+      var ra = db.progress.words[a.id], rb = db.progress.words[b.id];
+      if ((ra.wrong || 0) !== (rb.wrong || 0)) return (rb.wrong || 0) - (ra.wrong || 0);   // troublemakers first
+      if ((ra.box || 0) !== (rb.box || 0)) return (ra.box || 0) - (rb.box || 0);            // shaky boxes first
+      return (ra.next || 0) - (rb.next || 0);                                              // most overdue first
+    });
+    return typeof limit === 'number' ? picked.slice(0, limit) : picked;
+  }
+
+  /** Words this child has never met. */
+  function freshWords(limit) {
+    var fresh = TT.data.allWords().filter(function (w) {
+      var r = db.progress.words[w.id];
+      return !r || !r.seen;
+    });
+    for (var i = fresh.length - 1; i > 0; i--) {          // Fisher–Yates, no helper needed
+      var j = Math.floor(Math.random() * (i + 1)), t = fresh[i]; fresh[i] = fresh[j]; fresh[j] = t;
+    }
+    return typeof limit === 'number' ? fresh.slice(0, limit) : fresh;
+  }
+
+  function dueCount() { return dueWords().length; }
+
+  /** Today's deck: what is overdue, plus a couple of brand-new words so it never feels stale. */
+  function todayWords(limit) {
+    limit = limit || 8;
+    var due = dueWords(), fresh = freshWords();
+    var nFresh = Math.min(2, fresh.length);
+    var nDue = Math.min(due.length, Math.max(0, limit - nFresh));
+    nFresh = Math.min(fresh.length, Math.max(nFresh, limit - nDue));
+    return due.slice(0, nDue).concat(fresh.slice(0, nFresh));
+  }
+
+  /** For the grown-up screens: where a word sits and when it comes back. */
+  function boxInfo(id) {
+    var r = db.progress.words[id] || { box: 0, next: 0 };
+    var box = r.box || 0, next = r.next || 0;
+    return { box: box, days: BOX_DAYS[box], due: !next || next <= Date.now(), dueIn: Math.max(0, Math.ceil((next - Date.now()) / DAY)) };
   }
 
   function addSticker(wordId, cat) {
@@ -279,6 +351,12 @@
     levelInfo: levelInfo,
     stats: stats,
     reviewQueue: reviewQueue,
+    dueWords: dueWords,
+    dueCount: dueCount,
+    freshWords: freshWords,
+    todayWords: todayWords,
+    boxInfo: boxInfo,
+    BOX_DAYS: BOX_DAYS,
     addSticker: addSticker,
     startSession: startSession,
     addMinutes: addMinutes,

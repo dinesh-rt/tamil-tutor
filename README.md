@@ -292,9 +292,14 @@ regenerate anything. To bake a different rate into the files themselves, use
 | 2 | seen 4× or 1 right | familiar |
 | 3 | 4 right | mastered |
 
-The words that keep being mis-tapped, or that keep appearing without a single
-correct tap, float into the **review queue** — surfaced on Home as *worth
-another look* and in **Play → Practice these**.
+Words also sit in a **Leitner box** (0–4) that decides when they come back. Answer
+one right and it moves up — back in **1, 3, 7 or 21 days**; get it wrong and it
+drops to box 0, due again today. Overdue words sort wrong-first, then lowest box,
+then most overdue, and Home shows them as **மீண்டு பாப்போம் / Today — n words
+waiting** with a **▶ Play** button that runs a Listen & Pick round over exactly
+those words (`#/play/today`). A deck is 8 words: what is due, plus up to two
+brand-new ones, so practice never runs dry or feels like a chore. The same queue
+feeds **Play → Practise these**.
 
 Stars are awarded every 5 cards, on correct answers, and for finishing a
 Find-them-all round; they collect in the sticker book.

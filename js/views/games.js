@@ -24,6 +24,7 @@
   views.play = {
     render: function (host, route) {
       if (!route.a) return renderTopics(host);
+      if (route.a === 'today') return games.today(host);          // #/play/today — spaced repetition
       var cat = D.getCat(route.a);
       if (!cat) return renderTopics(host);
       if (route.b) return runGame(host, route.b, cat);
@@ -341,7 +342,19 @@
     nextRound();
   };
 
-  /* review mode = Listen & Pick over the words that need help */
+  /* ------------------------------------------- Today's review (spaced repetition)
+     Overdue words first — the ones got wrong lately and the ones in low boxes —
+     plus a couple of brand-new words so the deck never feels like a chore. */
+  games.today = function (host) {
+    var words = S.todayWords ? S.todayWords(8) : S.reviewQueue(null, 8);
+    if (!words || words.length < 2) {
+      UI.toast('Nothing due today — play a game instead!');
+      TT.app.go('play');
+      return;
+    }
+    games.review(host, null, { words: words, title: "Today's review", back: 'home' });
+  };
+
   /* ------------------------------------------- Say it in English (speaking) */
   /* Parent-mediated: the child hears the Tamil word, looks at the picture and
      says the English one. No grading — grown-up taps the star when it's said. */
@@ -444,12 +457,14 @@
     next();
   };
 
-  games.review = function (host, cat) {
-    var q = S.reviewQueue(cat ? cat.key : null, 10);
-    if (q.length < 2) { UI.toast('Nothing to practise — well done!'); TT.app.go('play/' + (cat ? cat.key : '')); return; }
+  /* review mode = Listen & Pick over the words that need help */
+  games.review = function (host, cat, opts) {
+    opts = opts || {};
+    var q = opts.words || S.reviewQueue(cat ? cat.key : null, 10);
+    if (q.length < 2) { UI.toast('Nothing to practise — well done!'); TT.app.go(opts.back || ('play/' + (cat ? cat.key : ''))); return; }
     var score = 0, streak = 0, round = 0, ROUNDS = Math.min(8, q.length), locked = false, current = null;
-    var head = gameHeader('Practise', cat);
-    head.children[0].addEventListener('click', function () { A.sfx('tap'); TT.app.go('play/' + (cat ? cat.key : '')); });
+    var head = gameHeader(opts.title || 'Practise', cat);
+    head.children[0].addEventListener('click', function () { A.sfx('tap'); TT.app.go(opts.back || ('play/' + (cat ? cat.key : ''))); });
     host.appendChild(head);
     var promptBar = U.el('div.game-prompt', {}, [
       U.el('button.replay-btn', { type: 'button' }, [U.el('span', { text: '🔊' })]),

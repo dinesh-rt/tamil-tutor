@@ -196,12 +196,15 @@
         U.el('div.mini-row', {}, fresh.map(function (w) { return UI.miniCard(w); }))
       ]));
 
-      /* review what needs practice */
-      var review = S.reviewQueue(null, 5);
-      if (review.length) {
-        host.appendChild(U.el('section.row', {}, [
-          UI.sectionHead('மீண்டு பாப்போம்', 'Worth another look'),
-          U.el('div.mini-row', {}, review.map(function (w) { return UI.miniCard(w); }))
+      /* today's review — what the boxes say is due, tap the band to play it */
+      var today = S.todayWords ? S.todayWords(6) : S.reviewQueue(null, 5);
+      if (today.length > 1) {
+        var dueN = S.dueCount ? S.dueCount() : today.length;
+        var playToday = U.el('button.btn.btn-small', { type: 'button', text: '▶ Play' });
+        playToday.addEventListener('click', function () { A.unlock(); A.sfx('tap'); go('play/today'); });
+        host.appendChild(U.el('section.row.today-band', {}, [
+          UI.sectionHead('மீண்டு பாப்போம்', 'Today — ' + dueN + ' word' + (dueN === 1 ? '' : 's') + ' waiting', playToday),
+          U.el('div.mini-row', {}, today.map(function (w) { return UI.miniCard(w); }))
         ]));
       }
 

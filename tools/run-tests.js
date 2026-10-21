@@ -31,6 +31,7 @@ const SUITES = [
   { file: 'portable.js', what: 'portable folder + offline file, clips, localStorage' },
   { file: 'pwa.js', what: 'installable build: manifest, worker, offline reload' },
   { file: 'infra.js', what: 'storage migrations, save-failure warning, update bar' },
+  { file: 'today.js', what: 'leitner boxes, due queue, today\'s deck and route' },
   { file: 'layout.js', what: 'overflow / tap-size audit', audit: true }
 ];
 

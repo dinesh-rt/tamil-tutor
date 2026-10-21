@@ -632,3 +632,13 @@ html[data-motion="reduced"] * { animation: none !important; transition-duration:
   background: color-mix(in srgb, #06d6a0 16%, #fff);
   border-color: color-mix(in srgb, #06d6a0 45%, transparent);
 }
+
+/* ------------------------------------------- today's review (spaced repetition) */
+.today-band {
+  background: linear-gradient(140deg,
+    color-mix(in srgb, var(--sun) 20%, var(--surface)),
+    color-mix(in srgb, var(--leaf) 18%, var(--surface)));
+  border: 3px solid color-mix(in srgb, var(--sun) 48%, transparent);
+  border-radius: 26px;
+  padding: 4px 12px 12px;
+}
