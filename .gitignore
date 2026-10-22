@@ -1,5 +1,6 @@
 dist/*
 !dist/tamil-tutor.html
+site/
 .DS_Store
 *.log
 node_modules/
@@ -9,5 +10,10 @@ tools/.venv-tts/
 tools/__pycache__/
 __pycache__/
 
-# generated voice pack — regenerate with `npm run voices`, or ship it as a release asset / LFS
-audio/
+# The voice pack IS tracked: GitHub Pages serves the site out of the repo, so a
+# repo without the mp3s hosts an app that quietly falls back to the device voice.
+# (Plain git, not LFS — LFS's free tier caps at 1 GB/month of bandwidth, which is
+# only ~60 first installs of a 15 MB pack. Pages' own 100 GB/month is the gentler
+# limit.) Re-generate with `npm run voices`; build-site.py fails loudly if a clip
+# promised by audio/manifest.json is missing.
+# audio/
