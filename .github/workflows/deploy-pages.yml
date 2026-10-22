@@ -1,0 +1,58 @@
+name: deploy-pages
+
+# Publishes https://dinesh-rt.github.io/tamil-tutor/ from site/ (tools/build-site.py).
+# Same stdlib-only rule as verify.yml: no npm install, no network.
+#
+# One-time setup in the repo: Settings → Pages → Build and deployment → Source:
+# **GitHub Actions**. Until that is set, this workflow builds but there is no
+# site to deploy to. To take the site down: set the source back to "None".
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write      # actions/deploy-pages
+  id-token: write   # the OIDC token that authenticates the deploy
+
+# A newer push should win; never let two deploys race the same cache version.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      - name: Syntax + word bank
+        run: python3 tools/verify.py --quick
+
+      - name: Assemble the site
+        run: python3 tools/build-site.py
+
+      - name: Upload to Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.out.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: out
+        uses: actions/deploy-pages@v4
+
+      - name: Where it went
+        run: echo "Published → ${{ steps.out.outputs.page_url }}"

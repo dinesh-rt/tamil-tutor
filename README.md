@@ -233,6 +233,54 @@ npm run share             # serve dist/portable on your Wi-Fi → Add to Home Sc
 | `dist/tamil-tutor-portable.zip` | that folder zipped (14 MB) — email it, put it on a USB stick or school PC | ✅ | unzip + double-click |
 | `dist/tamil-tutor-offline.html` | literally **one 20 MB file** with every clip base64'd inside | ✅ decoded lazily into Blob URLs | double-click |
 | `dist/tamil-tutor.html` | 266 KB, no audio beside it | ❌ uses the device voice | double-click |
+| `site/` | what GitHub Pages serves — the normal files, un-inlined | ✅ served from `/audio/` | `npm run site`, then push (see *Hosted*) |
+
+## Hosted — GitHub Pages (free)
+
+The app is also live at **<https://dinesh-rt.github.io/tamil-tutor/>**. Open it on a
+phone, Share → *Add to Home Screen*, and it installs full-screen; once the worker has
+the shell and the clips, it opens with the Wi-Fi off. No app store, no Mac, no cost.
+
+```bash
+npm run site                      # → site/  (what gets published, nothing else)
+npm run site -- --check           # same checks, builds to a temp folder and discards
+python3 tools/serve.py 8123 site  # preview the exact published bytes locally
+```
+
+`.github/workflows/deploy-pages.yml` publishes `main` on every push: `verify --quick`,
+then `tools/build-site.py`, then the Pages deploy. One-time switch, because GitHub
+cannot guess that you want Actions to be the publisher: **Settings → Pages → Source →
+GitHub Actions**. Before that first deploy the workflow builds green and deploys to
+nothing.
+
+`tools/build-site.py` is `cp -r` with opinions, because the two ways this breaks are
+both silent:
+
+1. **No recordings.** A site missing `audio/` still opens — it just speaks with the
+   device voice, so Tamil sounds odd and nobody can say why. The build cross-checks
+   every clip promised by `audio/manifest.json` against the files that actually ship,
+   and refuses if one is absent. This is why `audio/` is tracked in git now: Pages
+   serves the repo, and Git LFS's free tier caps at 1 GB/month of bandwidth (~60
+   installs of a 15 MB pack) where Pages' own 100 GB/month is the gentler limit.
+2. **A stale worker.** `sw.js` keeps its hand-bumped `VERSION` in the repo, but each
+   deploy stamps the *copy* with a hash of the shell plus `audio/manifest.json`. Every
+   real change replaces the cache on every installed phone; an identical rebuild does
+   not, so re-deploying cannot churn anyone's cache.
+
+The published files are also checked: every `src`/`href` in `index.html` and every
+entry in the worker's `ASSETS` precache list must exist in `site/`, and
+`audio/pack-index.js` is deliberately left out — it exists for `file://`, where
+`fetch()` is blocked; over http the app reads `audio/manifest.json` instead.
+
+Two things to know before you move it:
+
+* **Progress is tied to the URL.** Stars, stickers and custom words live in that
+  origin's `localStorage`, so `github.io/tamil-tutor` → your own domain means every
+  child starts from zero. Pick the URL you mean to keep, or Export first (🧩 → *Data*).
+* **Free Pages is public.** The repo is public, so the site is too — harmless here, but
+  a secret family word list is not what a public origin is for. A custom domain is free
+  either way: add a `CNAME`, point a `www.` record at the Pages host, tick *Enforce HTTPS*.
+
 
 How it survives `file://` (where `fetch()` is blocked): the folder build ships
 `audio/pack-index.js`, a plain `<script>` that hands the clip list to the app as
@@ -456,11 +504,13 @@ instead of losing it silently.
 *🆕 New version ready · Refresh*, and `npm run release` stamps the cache name so a
 release is actually picked up. Old caches are deleted on activate.
 
-**Keeping it in git.** Commit the source plus the small `dist/tamil-tutor.html`;
-keep `dist/portable/`, the zip and `dist/tamil-tutor-offline.html` out of history
-(~49 MB of regeneratable output that git would remember forever). Tag a release and
-attach the zip to it — or keep the 14 MB of mp3s in Git LFS / release assets, since
-`npm run voices` needs Microsoft's servers and cannot be replayed offline.
+**Keeping it in git.** Commit the source, the small `dist/tamil-tutor.html` and the
+voice pack; keep `dist/portable/`, the zip and `dist/tamil-tutor-offline.html` out of
+history (~49 MB of regeneratable output that git would remember forever). The mp3s are
+the exception — 15 MB is cheap, they are the app's actual content, `npm run voices`
+needs Microsoft's servers so they cannot be re-made offline, and GitHub Pages serves
+the site straight out of the repo (see *Hosted*). Attach the zips to a GitHub
+**Release** rather than committing them.
 
 ## Keeping a copy somewhere safe
 
@@ -474,16 +524,18 @@ git remote add origin https://github.com/<you>/tamil-tutor.git   # already set f
 git push -u origin master --follow-tags
 ```
 
-What does and doesn't go up: source, tests-as-documentation and the small
-shareable `dist/tamil-tutor.html` are tracked; the multi-megabyte `audio/`,
-`dist/portable/`, the zip and the offline file are ignored — attach those to a
-GitHub **Release** instead — the text to paste in is already written, in
-`RELEASE-NOTES.md`. Its checksum block refers to the build it was written
+What does and doesn't go up: source, tests-as-documentation, the small shareable
+`dist/tamil-tutor.html` and — since GitHub Pages serves the site out of the repo — the
+~15 MB `audio/` voice pack are tracked. `dist/portable/`, the zip and the offline file
+stay ignored; attach those to a GitHub **Release** instead — the text to paste in is
+already written, in `RELEASE-NOTES.md`. Its checksum block refers to the build it was
+written
 against; anything you rebuild changes them, so re-print the current ones with
 `sha256sum dist/*` (or re-run the snippet at the bottom of that file). GitHub Actions
 runs `python3 tools/verify.py` on every push: syntax, word bank and a bundle, with
-no npm install and no network. The browser suites are not in CI on purpose — run
-`npm test` on your own machine.
+no npm install and no network, and `deploy-pages.yml` publishes the site (see
+*Hosted*). The browser suites are not in CI on purpose — run `npm test` on your own
+machine.
 
 If you later decide the recordings belong in history, install `git-lfs`,
 uncomment the `*.mp3` line in `.gitattributes`, and move them in with

@@ -15,6 +15,7 @@
     "voices": "python3 tools/make-voice-pack.py",
     "bundle": "python3 tools/build-single-file.py",
     "portable": "python3 tools/build-portable.py",
+    "site": "python3 tools/build-site.py",
     "share": "python3 tools/serve.py 8090 dist/portable"
   }
 }
