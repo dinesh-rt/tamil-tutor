@@ -2,7 +2,7 @@
 <html lang="en" data-theme="day">
 <head>
 <meta charset="utf-8">
-<!-- Single-file build of தமிழ் Tutor — generated 2026-10-21. Open it directly, it works with no server. -->
+<!-- Single-file build of தமிழ் Tutor — generated 2026-10-23. Open it directly, it works with no server. -->
 
 <title>தமிழ் Tutor · Tamil for little ones</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
@@ -693,6 +693,85 @@ html[data-motion="reduced"] * { animation: none !important; transition-duration:
 .check-detail { margin: 2px 0 0; font-size: .92rem; opacity: .85; overflow-wrap: anywhere; }
 .check-fix { margin: 4px 0 0; font-size: .9rem; color: var(--grape); overflow-wrap: anywhere; }
 
+/* ------------------------------------------------------------------- books
+   A book is a card deck wearing a hat: one thing big on screen, tap it to
+   hear the recording the app already owns.                                    */
+.shelf {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 14px; padding: 6px 2px 20px;
+}
+.book-tile {
+  --cat: var(--tint, var(--grape));
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 16px 10px 12px; border-radius: var(--radius); cursor: pointer;
+  background: linear-gradient(165deg, color-mix(in srgb, var(--cat) 26%, var(--surface)), var(--surface) 72%);
+  border: 3px solid color-mix(in srgb, var(--cat) 42%, transparent);
+  box-shadow: 0 7px 0 color-mix(in srgb, var(--cat) 26%, transparent), var(--shadow-soft);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.book-tile:active { transform: translateY(4px) scale(.98); box-shadow: 0 2px 0 color-mix(in srgb, var(--cat) 26%, transparent); }
+.book-ico { font-size: 3rem; line-height: 1.1; }
+.book-ta { font-family: var(--font-ta); font-weight: 800; font-size: 1.06rem; text-align: center; line-height: 1.4; }
+.book-en { font-size: .78rem; color: var(--ink-soft); text-align: center; }
+.book-meta { margin-top: 4px; font-size: .7rem; font-weight: 800; color: color-mix(in srgb, var(--cat) 72%, var(--ink)); background: color-mix(in srgb, var(--cat) 13%, var(--surface)); padding: 2px 9px; border-radius: 99px; }
+.book-meta[data-done="1"] { background: color-mix(in srgb, var(--sun) 40%, var(--surface)); }
+
+.reader-top { display: flex; align-items: center; gap: 10px; margin: 4px 0 8px; }
+.reader-title { flex: 1; display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.reader-ico { font-size: 1.5rem; }
+.reader-ta { font-family: var(--font-ta); font-weight: 800; font-size: 1.1rem; }
+.reader-en { font-size: .76rem; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reader-auto { width: 42px; height: 42px; font-size: .8rem; opacity: .55; }
+.reader-auto.on { opacity: 1; background: color-mix(in srgb, var(--grape) 16%, var(--surface)); }
+
+.page-dots { display: flex; gap: 6px; justify-content: center; margin: 0 0 10px; }
+.page-dots .dot { width: 9px; height: 9px; border-radius: 99px; background: var(--line); transition: background .2s, transform .2s; }
+.page-dots .dot.on { background: var(--grape); transform: scale(1.35); }
+
+.book-stage {
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  min-height: min(58vh, 430px); padding: 6px 0;
+}
+.reader-nav { display: flex; justify-content: center; align-items: center; gap: 14px; margin: 12px 0 22px; }
+.btn-round {
+  width: 62px; height: 62px; border-radius: 99px; font-size: 1.5rem; line-height: 1;
+  background: var(--surface); border: 3px solid var(--line); color: var(--ink);
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--ink) 10%, transparent); cursor: pointer;
+}
+.btn-round:active { transform: translateY(4px); box-shadow: none; }
+.btn-round:disabled { opacity: .3; cursor: default; }
+.btn-round.next { background: color-mix(in srgb, var(--sun) 55%, var(--surface)); border-color: color-mix(in srgb, var(--sun) 70%, #000 5%); }
+.btn-go {
+  margin-top: 14px; padding: 14px 26px; border-radius: 99px; font-size: 1.15rem; font-weight: 800;
+  font-family: var(--font-ta); background: var(--sun); color: var(--ink);
+  border: 3px solid color-mix(in srgb, var(--sun) 60%, #000 8%); box-shadow: 0 6px 0 color-mix(in srgb, var(--sun) 45%, transparent); cursor: pointer;
+}
+.btn-go:active { transform: translateY(4px); box-shadow: none; }
+
+.book-cover, .book-peek, .book-end { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; padding: 10px; }
+.cover-ico, .end-ico { font-size: clamp(4rem, 22vw, 7rem); line-height: 1; }
+.cover-ta, .end-ta { font-family: var(--font-ta); font-size: 1.7rem; font-weight: 800; line-height: 1.45; }
+.cover-en, .end-ta + .en { font-size: .95rem; color: var(--ink-soft); }
+.book-end .end-cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+.peek-ico { font-size: 4.2rem; }
+.peek-q { font-size: 2.6rem; margin-top: -22px; }
+
+.book-count { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; width: 100%; }
+.count-num { font-size: 3.4rem; font-weight: 900; color: var(--grape); line-height: 1; }
+.count-ta { font-family: var(--font-ta); font-size: 1.45rem; font-weight: 800; }
+.count-en { font-size: .85rem; color: var(--ink-soft); }
+.count-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 12px; max-width: 420px; }
+
+.book-quiz { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+.quiz-hint { font-size: 2.2rem; cursor: pointer; }
+.quiz-q { font-size: .92rem; color: var(--ink-soft); }
+.quiz-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.nope { animation: book-nope .45s ease; border-color: var(--rose) !important; }
+
+.book-line { display: flex; flex-direction: column; gap: 8px; max-width: 560px; cursor: pointer; padding: 12px; }
+.line-ta { font-family: var(--font-ta); font-size: 1.6rem; font-weight: 800; line-height: 1.7; }
+.line-en { font-size: .95rem; color: var(--ink-soft); }
+
 </style>
 <style>
 /* ===== css/animations.css ===== */
@@ -985,11 +1064,20 @@ html[data-motion="reduced"] * { animation: none !important; transition-duration:
 .mo-wobble { animation: kb-wiggle .9s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .pic, .card, .mini, .tile, .curtain, .bg-shape, .hero-elephant, .right, .wrong, .pulse { animation: none !important; }
+  .pic, .card, .mini, .tile, .curtain, .bg-shape, .hero-elephant, .right, .wrong, .pulse, .nope { animation: none !important; }
   .bg { display: none; }
 }
 html[data-motion="reduced"] .bg { display: none; }
 html[data-motion="reduced"] .pic { animation: none !important; }
+
+/* wrong answer in a book quiz */
+@keyframes book-nope {
+  0%,100% { transform: translateX(0) rotate(0); }
+  20% { transform: translateX(-7px) rotate(-3deg); }
+  40% { transform: translateX(7px) rotate(3deg); }
+  60% { transform: translateX(-5px) rotate(-2deg); }
+  80% { transform: translateX(5px) rotate(2deg); }
+}
 
 </style>
 </head>
@@ -2234,6 +2322,7 @@ html[data-motion="reduced"] .pic { animation: none !important; }
 })(window.TT = window.TT || {});
 
 </script>
+<script src="js/data/library.js"></script>
 <script>
 /* ===== js/lib/audio.js ===== */
 /* Speech (words spoken aloud) + sound effects synthesised with WebAudio.
@@ -2491,7 +2580,11 @@ html[data-motion="reduced"] .pic { animation: none !important; }
       if (timer) { clearTimeout(timer); timer = null; }
       if (opts.onerror) opts.onerror(); else settle(job);
     };
-    timer = setTimeout(function () { timer = null; finish(); }, 9000); // a stuck file must never hang the deck
+    /* a stuck file must never hang the deck — but a word clip is 1-2 s and a
+       narration page is 30 s, so let the caller say how long it runs (books
+       pass `dur` from the pack manifest) instead of cutting every clip short */
+    var limit = Math.max(9000, (opts.dur > 0 ? opts.dur : 0) * 1000 + 4000);
+    timer = setTimeout(function () { timer = null; finish(); }, limit);
     try {
       var p = a.play();
       if (p && p.catch) p.catch(function () { setTimeout(finish, 80); });   // blocked before the first tap
@@ -2737,6 +2830,10 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     cancel: cancel,
     speakText: speakText,
     sayWord: sayWord,
+    /** Play one recording and report when it ends. Books pass `dur` from the
+        pack manifest; without it the anti-stall timer cuts long narration off
+        at 9 s, which is fine for a word clip and wrong for a page. */
+    playClip: playClip,
     sfx: sfx,
     voices: voiceList,
     bestVoice: bestVoice,
@@ -2834,10 +2931,11 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     minutes: 0,
     lastDay: null,
     streak: 0,
-    byCat: {}
+    byCat: {},
+    books: {}            // id -> {page, reads, finished}
   };
 
-  var CURRENT_VERSION = 3;
+  var CURRENT_VERSION = 4;
 
   function blank() {
     return { version: CURRENT_VERSION, settings: Object.assign({}, DEFAULTS), progress: JSON.parse(JSON.stringify(EMPTY_PROGRESS)), custom: [] };
@@ -2878,6 +2976,11 @@ html[data-motion="reduced"] .pic { animation: none !important; }
       });
       d.progress.words = words;
       return d;
+    },
+    4: function (d) {                    // the book shelf remembers how far you got
+      d.progress = d.progress || {};
+      d.progress.books = d.progress.books || {};
+      return d;
     }
   };
 
@@ -2895,6 +2998,7 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     db.progress.words = (obj.progress && obj.progress.words) || {};
     db.progress.stickers = (obj.progress && obj.progress.stickers) || [];
     db.progress.byCat = (obj.progress && obj.progress.byCat) || {};
+    db.progress.books = (obj.progress && obj.progress.books) || {};
     db.custom = Array.isArray(obj.custom) ? obj.custom : [];
     db.version = obj.version || 1;
     return migrate(db);
@@ -2911,6 +3015,10 @@ html[data-motion="reduced"] .pic { animation: none !important; }
       // keep a last-known-good copy so a half-written save can be recovered
       try { if (readRaw(KEY + '.bak') !== raw) localStorage.setItem(KEY + '.bak', raw); } catch (e) { }
       apply(obj);
+      /* a save that just migrated should not have to wait for the next tap to
+         be written — otherwise the on-disk copy sits on an old version forever
+         and every launch re-runs the migrations against it */
+      if (db.version !== obj.version) save();
     } catch (e) {
       var bak = readRaw(KEY + '.bak');
       if (bak && bak !== raw) {
@@ -3077,6 +3185,35 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     save();
   }
 
+  /* books ------------------------------------------------------------------
+     A finished book leaves exactly one sticker behind, however many times the
+     same child reads it — a second ⭐ for the same book teaches them that
+     stars are not worth anything. */
+  function bookState(id) {
+    var b = db.progress.books && db.progress.books[id];
+    if (!b) return { page: 0, reads: 0, finished: false };
+    return { page: b.page || 0, reads: b.reads || 0, finished: !!b.finished };
+  }
+
+  function markBookPage(id, page) {
+    var b = db.progress.books[id] || (db.progress.books[id] = { page: 0, reads: 0, finished: false });
+    if (page > (b.page || 0)) { b.page = page; save(); }
+  }
+
+  function finishBook(id) {
+    var b = db.progress.books[id] || (db.progress.books[id] = { page: 0, reads: 0, finished: false });
+    var firstTime = !b.finished;
+    b.reads = (b.reads || 0) + 1;
+    b.finished = true;
+    if (firstTime && TT.books && TT.books.get) {
+      var bk = TT.books.get(id);
+      var w = bk && TT.books.firstWord(bk);
+      if (w) addSticker(w, bk.cat);
+    }
+    save();
+    return { firstTime: firstTime };
+  }
+
   function startSession() {
     db.progress.sessions++;
     var t = U.todayKey();
@@ -3149,6 +3286,9 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     boxInfo: boxInfo,
     BOX_DAYS: BOX_DAYS,
     addSticker: addSticker,
+    bookState: bookState,
+    markBookPage: markBookPage,
+    finishBook: finishBook,
     startSession: startSession,
     addMinutes: addMinutes,
     resetProgress: resetProgress,
@@ -3585,7 +3725,7 @@ html[data-motion="reduced"] .pic { animation: none !important; }
 
   function highlightNav(name) {
     U.qsa('.tabbar .tab').forEach(function (t) {
-      t.classList.toggle('on', t.dataset.route === name || (name === 'cat' && t.dataset.route === 'learn'));
+      t.classList.toggle('on', t.dataset.route === name || (name === 'cat' && t.dataset.route === 'learn') || (name === 'book' && t.dataset.route === 'library'));
     });
   }
 
@@ -3668,6 +3808,8 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     var tabs = [
       { route: 'home', icon: '🏠', ta: 'முகப்பு', en: 'Home' },
       { route: 'learn', icon: '📚', ta: 'கற்க', en: 'Learn' },
+      /* the Tamil for this tab is the word bank's own word for "book" */
+      { route: 'library', icon: '📖', ta: (D.getWord('school/book') || {}).ta || 'Books', en: 'Books' },
       { route: 'play', icon: '🎲', ta: 'விளையாடு', en: 'Play' },
       { route: 'stickers', icon: '⭐', ta: 'நட்சத்திரம்', en: 'Stars' }
     ];
@@ -4211,6 +4353,7 @@ html[data-motion="reduced"] .pic { animation: none !important; }
 })(window.TT = window.TT || {});
 
 </script>
+<script src="js/views/library.js"></script>
 <script>
 /* ===== js/views/games.js ===== */
 /* Four games: Listen & Pick, Peek-a-boo, Find-them-all, Say it in English. */
