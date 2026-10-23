@@ -25,6 +25,7 @@ const ASSETS = [
   'js/data/mind.js',
   'js/data/play.js',
   'js/data/library.js',
+  'js/data/stories.js',
   'js/ui.js',
   'js/app.js',
   'js/views/learn.js',
@@ -93,6 +94,23 @@ self.addEventListener('fetch', (e) => {
   }
 
   /* everything else: cache first, quietly refresh in the background */
+  /* The two audio indexes decide what a child can hear, so they are read from
+     the network first. Cache-first here means a phone that was installed
+     before a re-narration boots with the old index and opens a shelf of
+     silent books — the cache is the fallback, not the first word. */
+  if (/manifest\.json$/.test(url.pathname)) {
+    e.respondWith(
+      fetch(req).then((res) => {
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+        }
+        return res;
+      }).catch(() => caches.match(req).then((r) => r || new Response('', { status: 503 })))
+    );
+    return;
+  }
+
   e.respondWith(
     caches.match(req).then((hit) => {
       const refresh = fetch(req)

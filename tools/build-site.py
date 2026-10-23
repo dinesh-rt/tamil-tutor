@@ -38,7 +38,7 @@ DEFAULT_OUT = os.path.join(ROOT, "site")
 FILES = ["index.html", "manifest.webmanifest", "sw.js"]
 TREES = ["css", "js", "icons"]
 AUDIO_KEEP = re.compile(r"^audio/(?:[a-z]{2}/)?(?:[a-z]+/)?[^/]+\.mp3$")
-AUDIO_ALWAYS = ["audio/manifest.json"]
+AUDIO_ALWAYS = ["audio/manifest.json", "audio/books/manifest.json"]
 
 # js/data/library.js points at words by id; every one of them must be a word
 # the recordings actually cover, or a book page goes silent on a phone.
@@ -104,6 +104,55 @@ def copy_audio(out, pack):
             shutil.copy2(src, dst)
             n += 1
     return n, dir_size(os.path.join(out, "audio")) if os.path.isdir(os.path.join(out, "audio")) else 0, missing
+
+
+def read_story_pack():
+    """audio/books/manifest.json — written by tools/make-story-pack.py."""
+    p = os.path.join(AUDIO, "books", "manifest.json")
+    if not os.path.exists(p):
+        return None
+    with open(p, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def story_clip_paths(sp):
+    for bid, rec in sp.get("books", {}).items():
+        for page in rec.get("pages", []):
+            if page.get("file"):
+                yield "audio/books/%s/%s" % (bid, page["file"])
+
+
+def copy_story_audio(out, sp):
+    """Copy the story narrations. Returns (files, bytes, silent_books).
+
+    A book the manifest calls complete but whose mp3s are not here is the one
+    thing that must stop a deploy: the app trusts that flag to put the book on
+    the shelf, so publishing it anyway hands a child a story with nothing to
+    hear. Half-made books are left alone — the app already hides those.
+    """
+    if not sp:
+        return 0, 0, [], 0, 0
+    n, missing = 0, {}
+    for rel in sorted(set(story_clip_paths(sp))):
+        src = os.path.join(ROOT, rel)
+        if not os.path.exists(src):
+            missing.setdefault(rel.split("/")[2], []).append(rel)
+            continue
+        dst = os.path.join(out, rel)
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        shutil.copy2(src, dst)
+        n += 1
+    silent = [b for b, rec in sp.get("books", {}).items()
+              if rec.get("complete") and b in missing]
+    made = [b for b, rec in sp.get("books", {}).items() if rec.get("complete")]
+    for rel in AUDIO_ALWAYS:
+        src = os.path.join(ROOT, rel)
+        if os.path.exists(src):
+            dst = os.path.join(out, rel)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copy2(src, dst)
+    size = dir_size(os.path.join(out, "audio", "books")) if os.path.isdir(os.path.join(out, "audio", "books")) else 0
+    return n, size, silent, len(made), len(sp.get("books", {}))
 
 
 def content_version(out):
@@ -212,6 +261,17 @@ def build(out, check_only=False):
         print("   The app will fall back to the device voice. Make them with:")
         print("     python3 tools/make-voice-pack.py   then rebuild\n")
 
+    sclips, sbytes, sbooks, snarrated, sdescribed = 0, 0, [], 0, 0
+    spack = read_story_pack()
+    if spack or os.path.exists(os.path.join(AUDIO, "books")):
+        sclips, sbytes, sbooks, snarrated, sdescribed = copy_story_audio(out, spack)
+        for b in sbooks:
+            fails.append("story '%s' is marked complete but its recordings are not here — "
+                         "it would open as a silent book" % b)
+        if not spack:
+            fails.append("audio/books/ has recordings but no audio/books/manifest.json — "
+                         "the app cannot tell which stories are narrated")
+
     bad_refs = check_index(out)
     if bad_refs:
         fails.append("index.html points at files that are not in the build: " + ", ".join(bad_refs[:5]))
@@ -239,6 +299,9 @@ def build(out, check_only=False):
           % (clips, human(abytes), promised, len(pack["files"]) if pack else 0))
     if book_refs:
         print("  books     %d word references checked against the pack" % book_refs)
+    if spack:
+        print("  stories   %d of %d narrated, %d clips, %s"
+              % (snarrated, sdescribed, sclips, human(sbytes)))
     print("  total     %s" % human(total))
 
     if fails:

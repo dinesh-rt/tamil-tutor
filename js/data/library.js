@@ -19,6 +19,57 @@
   var D = TT.data;
 
   var books = [], byId = {};
+  var storyPack = null;
+
+  /* A story is only shippable once it can be heard. The word-books narrate
+     themselves from the existing pack, but a story page is one spoken line and
+     those clips are made by tools/make-story-pack.py — so a book whose audio
+     has not been generated yet is not a book, it is a silent screen a
+     two-year-old taps at. Stories stay off the shelf until
+     audio/books/manifest.json says their clips exist. */
+  function loadStoryPack() {
+    /* Under file:// a fetch either fails outright or is refused, and a story
+       with no way to be heard is simply not offered — so don't ask. A portable
+       bundle can hand the index over directly as window.TT_STORY_PACK. */
+    var injected = typeof window !== 'undefined' && window.TT_STORY_PACK;
+    if (!injected) {
+      if (typeof fetch !== 'function') return;
+      if (typeof location !== 'undefined' && location.protocol === 'file:') return;
+    }
+    var asking = injected
+      ? Promise.resolve({ ok: true, json: function () { return Promise.resolve(window.TT_STORY_PACK); } })
+      : fetch('audio/books/manifest.json', { cache: 'no-cache' });
+    asking
+      .then(function (r) { return r && r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j) return;
+        storyPack = (j && j.books) || j || {};
+        books.forEach(function (b) {
+          if (!b.story) return;
+          var rec = storyPack[b.id];
+          /* complete, not merely present: a half-narrated book would open on
+             page 3 with nothing to hear */
+          b.ready = !!(rec && rec.complete && rec.pages && rec.pages.length === b.pages.length);
+          if (!b.ready || !rec.pages) return;
+          rec.pages.forEach(function (m, i) {
+            if (!m) return;
+            b.pages[i].dur = m.dur || 0;
+            /* the pack names clips after the text that made them, so an edited
+               line gets a new filename and the worker cannot serve the old one */
+            if (m.file) b.pages[i].clip = 'audio/books/' + b.id + '/' + m.file;
+          });
+          b._pages = null;   // pagesOf() may be cached from before the durations arrived
+        });
+        /* the shelf is often already painted by the time this answer lands —
+           without this the Books tab shows ten books or twenty depending on
+           whether a fetch won the race, which is the kind of bug a toddler
+           finds and a grown-up cannot reproduce */
+        if (typeof window !== 'undefined' && window.dispatchEvent) {
+          try { window.dispatchEvent(new CustomEvent('tt:stories-ready')); } catch (e) { /* ignore */ }
+        }
+      })
+      .catch(function () { /* no pack: the shelf simply has no stories */ });
+  }
 
   function exists(ref) { return !!ref && !!D.getWord(ref); }
 
@@ -36,9 +87,11 @@
       if (p.k === 'quiz') return exists(p.w);
       if (p.k === 'count') return exists(p.item) && exists(p.num);
       if (p.k === 'line') return !!(p.ta && p.clip);
+      if (p.k === 'moral') return !!p.ta;   // the moral has no word to check, only a line
       return exists(p.w);
     });
     if (!def.pages.length) return;
+    if (def.story) def.ready = !!(storyPack && storyPack[def.id]);
     if (!byId[def.id]) { books.push(def); byId[def.id] = def; }
   }
 
@@ -60,8 +113,12 @@
     return null;
   }
 
-  function all() { return books; }
-  function get(id) { return byId[id] || null; }
+  function all() { return books.filter(function (b) { return !b.story || b.ready; }); }
+  function shelf() { return books; }
+  function get(id) {
+    var b = byId[id] || null;
+    return (b && (!b.story || b.ready)) ? b : null;
+  }
   function word(ref) { return exists(ref) ? D.getWord(ref) : null; }
 
   /* ------------------------------------------------------------------ shelf */
@@ -201,9 +258,15 @@
   TT.books = {
     book: book,
     all: all,
+    shelf: shelf,
     get: get,
     word: word,
     pagesOf: pagesOf,
-    firstWord: firstWord
+    firstWord: firstWord,
+    storiesWaiting: function () {
+      return books.filter(function (b) { return b.story && !b.ready; }).length;
+    }
   };
+
+  loadStoryPack();
 })(window.TT = window.TT || {});

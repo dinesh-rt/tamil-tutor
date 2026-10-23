@@ -9,33 +9,31 @@ Still no build step for development — this is only for sharing a single file.
 import datetime
 import os
 import re
+import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(ROOT, "dist")
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(OUT_DIR, "tamil-tutor.html")
 
-CSS = ["css/app.css", "css/animations.css"]
-JS = [
-    "js/lib/util.js",
-    "js/lib/sprites.js",
-    "js/data/core.js",
-    "js/data/nature.js",
-    "js/data/food.js",
-    "js/data/home.js",
-    "js/data/people.js",
-    "js/data/mind.js",
-    "js/data/play.js",
-    "js/lib/audio.js",
-    "js/lib/storage.js",
-    "js/lib/confetti.js",
-    "js/ui.js",
-    "js/app.js",
-    "js/views/learn.js",
-    "js/views/games.js",
-    "js/views/stickers.js",
-    "js/views/grownup.js",
-]
+def from_index():
+    """Which css and js go into the bundle is read out of index.html.
+
+    This list used to be written out a second time here. When the Books tab
+    landed it was added to the app and not to this copy, so the shareable
+    single-file build silently shipped with no shelf at all — double-clicking
+    the file gave you a Tamil tutor you could not read books in, and no tool
+    complained. One list, in the file the browser already obeys.
+    """
+    html = open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
+    js = [s for s in re.findall(r'<script[^>]*src="([^"]+)"', html, re.I) if s.endswith(".js")]
+    css = [s for s in re.findall(r'<link[^>]*href="([^"]+)"', html, re.I) if s.endswith(".css")]
+    if not js or not css:
+        sys.exit("index.html handed me nothing to inline — have its tags changed shape?")
+    return css, js
+
+
+CSS, JS = from_index()
 
 
 def read(rel):

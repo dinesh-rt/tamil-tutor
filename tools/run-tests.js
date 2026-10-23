@@ -35,6 +35,7 @@ const SUITES = [
   { file: 'checkup.js', what: 'grown-up device check-up panel' },
   { file: 'zh.js', what: 'the ழ sound: spoken respelling, card letters, sentence fallback' },
   { file: 'books.js', what: 'book shelf, reader, peek/count/quiz pages, finishing, book progress' },
+  { file: 'stories.js', what: 'the ten stories: narration served, pages spoken, moral, audio gate' },
   { file: 'layout.js', what: 'overflow / tap-size audit', audit: true }
 ];
 

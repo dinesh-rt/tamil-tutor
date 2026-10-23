@@ -43,6 +43,17 @@
     highlightNav(route.name);
   }
 
+  /* The story shelf depends on an async look at the narration pack. If the
+     Books tab is already on screen when that answer arrives, paint it again —
+     otherwise the child sees ten books or twenty depending on network timing. */
+  window.addEventListener('tt:stories-ready', function () {
+    var v = document.body.dataset.view;
+    /* the shelf needs repainting; a story that failed to open because the pack
+       had not landed yet needs it even more. A story that DID open is left
+       alone — never yank the page out from under a child mid-read */
+    if (v === 'library' || (v === 'book' && document.querySelector('#view > p.empty'))) render();
+  });
+
   function highlightNav(name) {
     U.qsa('.tabbar .tab').forEach(function (t) {
       t.classList.toggle('on', t.dataset.route === name || (name === 'cat' && t.dataset.route === 'learn') || (name === 'book' && t.dataset.route === 'library'));

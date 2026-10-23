@@ -751,6 +751,15 @@ html[data-motion="reduced"] * { animation: none !important; transition-duration:
 .quiz-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .nope { animation: book-nope .45s ease; border-color: var(--rose) !important; }
 
+/* a story page: one spoken line of Tamil, big enough to read with a lap-top */
 .book-line { display: flex; flex-direction: column; gap: 8px; max-width: 560px; cursor: pointer; padding: 12px; }
+
+/* the closing sentence of a story — set apart so it reads as the takeaway */
+.book-moral { display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 540px; cursor: pointer; padding: 16px 12px; }
+.moral-mark { font-size: 2.4rem; }
+.moral-ta { font-family: var(--font-ta); font-size: 1.5rem; font-weight: 800; line-height: 1.75; }
+.moral-ro { font-size: .9rem; color: var(--ink-soft); font-style: italic; }
+.moral-en { font-size: .95rem; color: var(--ink-soft); }
+.book-tile[data-story="1"] { border-style: double; border-width: 5px; }
 .line-ta { font-family: var(--font-ta); font-size: 1.6rem; font-weight: 800; line-height: 1.7; }
 .line-en { font-size: .95rem; color: var(--ink-soft); }

@@ -39,14 +39,32 @@
         ]));
       }
 
-      var shelf = U.el('div.shelf', { role: 'list' });
-      all.forEach(function (b) { shelf.appendChild(tile(b)); });
-      host.appendChild(shelf);
+      function row(list, ta, en) {
+        if (!list.length) return;
+        host.appendChild(UI.sectionHead(ta, en));
+        var shelf = U.el('div.shelf', { role: 'list' });
+        list.forEach(function (b) { shelf.appendChild(tile(b)); });
+        host.appendChild(shelf);
+      }
 
-      U.append(host, U.el('p.empty', {
-        text: 'Ten little board-books, made from the words ' + bookWord().toLowerCase() + ' you already know. '
-            + 'Tap a page to hear it again — no new recordings, no new words to mistrust.'
-      }));
+      var board = all.filter(function (b) { return !b.story; });
+      var tales = all.filter(function (b) { return b.story; });
+      if (tales.length && board.length) {
+        row(board, 'புத்தகங்கள்', 'Tap a page to hear it');
+        row(tales, 'கதைகள்', 'Ten old tales — one line per page, read aloud');
+      } else {
+        row(all, bookWord(), 'Tap a page to hear it');
+      }
+
+      /* narration pending is a build state, not a child's problem — but a
+         grown-up scanning the shelf should be able to see it */
+      var waiting = B.storiesWaiting();
+      if (waiting) {
+        U.append(host, U.el('p.empty', {
+          text: waiting + (waiting === 1 ? ' story is' : ' stories are')
+              + ' written but have no narration yet — run tools/make-story-pack.py to hear them.'
+        }));
+      }
     }
   };
 
@@ -59,7 +77,7 @@
 
     var t = U.el('button.book-tile', {
       type: 'button', role: 'listitem', 'aria-label': b.en + ' — ' + b.ta,
-      dataset: { id: b.id }
+      dataset: { id: b.id, story: b.story ? '1' : '0' }
     }, [
       U.el('span.book-ico', { text: b.icon, 'aria-hidden': 'true' }),
       U.el('span.book-ta.tamil', { text: b.ta }),
@@ -146,6 +164,7 @@
         else if (p.k === 'count') speakCount(p);
         else if (p.k === 'quiz') speakQuiz(p);
         else if (p.k === 'line') speakLine(p);
+        else if (p.k === 'moral') speakLine(p);
         else if (p.k === 'cover') { A.sfx('ding'); }
       }
 
@@ -190,6 +209,7 @@
         if (p.k === 'count') return pageCount(p);
         if (p.k === 'quiz') return pageQuiz(p);
         if (p.k === 'line') return pageLine(p);
+        if (p.k === 'moral') return pageMoral(p);
         pageWord(p);
       }
 
@@ -295,14 +315,35 @@
         speakLine(p);
       }
 
+      function pageMoral(p) {
+        /* the last page of a story is the grown-up sentence the child is left
+           with — set it apart from a story line so it reads as the takeaway */
+        var box = U.el('div.book-moral', {}, [
+          U.el('div.moral-mark', { text: '💡', 'aria-hidden': 'true' }),
+          U.el('div.moral-ta.tamil', { text: p.ta }),
+          p.ro && S.settings.showRoman ? U.el('div.moral-ro', { text: p.ro }) : null,
+          p.en ? U.el('div.moral-en', { text: p.en }) : null
+        ]);
+        box.addEventListener('click', function () { A.sfx('tap'); speakLine(p); });
+        stage.appendChild(box);
+        speakLine(p);
+      }
+
       function pageEnd(p) {
         var award = endAwarded ? { firstTime: false } : (endAwarded = true, S.finishBook(b.id));
+        var word = B.word(B.firstWord(b));
+        /* a word-book pays out a sticker, so it may say so. A story has no
+           single word to pin a sticker to — never promise a star the code
+           has no intention of delivering */
+        var line = !award.firstTime
+          ? b.en + ' — read ' + S.bookState(b.id).reads + '×. Again?'
+          : (word ? 'That’s a new ⭐ for ' + word.en + '.' : 'The end! Shall we read it again?');
         var box = U.el('div.book-end', {}, [
           U.el('div.end-ico', { text: '🎉', 'aria-hidden': 'true' }),
-          U.el('div.end-ta.tamil', { text: 'நல்லா விளையாடின. மறுபடி விளையாடுவோமா!' }),
-          U.el('div.en', { text: award.firstTime
-            ? 'That’s a new ⭐ for ' + (D.getWord(p.w) || { en: b.en }).en + '.'
-            : b.en + ' — read ' + S.bookState(b.id).reads + '×. Again?' }),
+          U.el('div.end-ta.tamil', { text: b.story
+            ? 'நல்லா கதை கேட்டேன். மறுபடி படிப்போமா!'
+            : 'நல்லா விளையாடின. மறுபடி விளையாடுவோமா!' }),
+          U.el('div.en', { text: line }),
           U.el('div.end-cta', {}, [
             UI.bigButton('மீண்டும்', { icon: '🔁', ta: 'மீண்டும்', color: b.color }, function () {
               idx = 0; revealed = false; quizPicks = {}; endAwarded = false; paint();

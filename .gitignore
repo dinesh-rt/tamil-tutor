@@ -17,3 +17,7 @@ __pycache__/
 # limit.) Re-generate with `npm run voices`; build-site.py fails loudly if a clip
 # promised by audio/manifest.json is missing.
 # audio/
+
+# Story art is candidates until a human picks a look. tools/make-story-art.py
+# writes them; nothing references them until the style is agreed.
+images/
