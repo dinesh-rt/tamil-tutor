@@ -675,3 +675,82 @@ html[data-motion="reduced"] * { animation: none !important; transition-duration:
 .check-label { font-weight: 800; margin: 0; }
 .check-detail { margin: 2px 0 0; font-size: .92rem; opacity: .85; overflow-wrap: anywhere; }
 .check-fix { margin: 4px 0 0; font-size: .9rem; color: var(--grape); overflow-wrap: anywhere; }
+
+/* ------------------------------------------------------------------- books
+   A book is a card deck wearing a hat: one thing big on screen, tap it to
+   hear the recording the app already owns.                                    */
+.shelf {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 14px; padding: 6px 2px 20px;
+}
+.book-tile {
+  --cat: var(--tint, var(--grape));
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 16px 10px 12px; border-radius: var(--radius); cursor: pointer;
+  background: linear-gradient(165deg, color-mix(in srgb, var(--cat) 26%, var(--surface)), var(--surface) 72%);
+  border: 3px solid color-mix(in srgb, var(--cat) 42%, transparent);
+  box-shadow: 0 7px 0 color-mix(in srgb, var(--cat) 26%, transparent), var(--shadow-soft);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.book-tile:active { transform: translateY(4px) scale(.98); box-shadow: 0 2px 0 color-mix(in srgb, var(--cat) 26%, transparent); }
+.book-ico { font-size: 3rem; line-height: 1.1; }
+.book-ta { font-family: var(--font-ta); font-weight: 800; font-size: 1.06rem; text-align: center; line-height: 1.4; }
+.book-en { font-size: .78rem; color: var(--ink-soft); text-align: center; }
+.book-meta { margin-top: 4px; font-size: .7rem; font-weight: 800; color: color-mix(in srgb, var(--cat) 72%, var(--ink)); background: color-mix(in srgb, var(--cat) 13%, var(--surface)); padding: 2px 9px; border-radius: 99px; }
+.book-meta[data-done="1"] { background: color-mix(in srgb, var(--sun) 40%, var(--surface)); }
+
+.reader-top { display: flex; align-items: center; gap: 10px; margin: 4px 0 8px; }
+.reader-title { flex: 1; display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.reader-ico { font-size: 1.5rem; }
+.reader-ta { font-family: var(--font-ta); font-weight: 800; font-size: 1.1rem; }
+.reader-en { font-size: .76rem; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reader-auto { width: 42px; height: 42px; font-size: .8rem; opacity: .55; }
+.reader-auto.on { opacity: 1; background: color-mix(in srgb, var(--grape) 16%, var(--surface)); }
+
+.page-dots { display: flex; gap: 6px; justify-content: center; margin: 0 0 10px; }
+.page-dots .dot { width: 9px; height: 9px; border-radius: 99px; background: var(--line); transition: background .2s, transform .2s; }
+.page-dots .dot.on { background: var(--grape); transform: scale(1.35); }
+
+.book-stage {
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  min-height: min(58vh, 430px); padding: 6px 0;
+}
+.reader-nav { display: flex; justify-content: center; align-items: center; gap: 14px; margin: 12px 0 22px; }
+.btn-round {
+  width: 62px; height: 62px; border-radius: 99px; font-size: 1.5rem; line-height: 1;
+  background: var(--surface); border: 3px solid var(--line); color: var(--ink);
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--ink) 10%, transparent); cursor: pointer;
+}
+.btn-round:active { transform: translateY(4px); box-shadow: none; }
+.btn-round:disabled { opacity: .3; cursor: default; }
+.btn-round.next { background: color-mix(in srgb, var(--sun) 55%, var(--surface)); border-color: color-mix(in srgb, var(--sun) 70%, #000 5%); }
+.btn-go {
+  margin-top: 14px; padding: 14px 26px; border-radius: 99px; font-size: 1.15rem; font-weight: 800;
+  font-family: var(--font-ta); background: var(--sun); color: var(--ink);
+  border: 3px solid color-mix(in srgb, var(--sun) 60%, #000 8%); box-shadow: 0 6px 0 color-mix(in srgb, var(--sun) 45%, transparent); cursor: pointer;
+}
+.btn-go:active { transform: translateY(4px); box-shadow: none; }
+
+.book-cover, .book-peek, .book-end { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; padding: 10px; }
+.cover-ico, .end-ico { font-size: clamp(4rem, 22vw, 7rem); line-height: 1; }
+.cover-ta, .end-ta { font-family: var(--font-ta); font-size: 1.7rem; font-weight: 800; line-height: 1.45; }
+.cover-en, .end-ta + .en { font-size: .95rem; color: var(--ink-soft); }
+.book-end .end-cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+.peek-ico { font-size: 4.2rem; }
+.peek-q { font-size: 2.6rem; margin-top: -22px; }
+
+.book-count { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; width: 100%; }
+.count-num { font-size: 3.4rem; font-weight: 900; color: var(--grape); line-height: 1; }
+.count-ta { font-family: var(--font-ta); font-size: 1.45rem; font-weight: 800; }
+.count-en { font-size: .85rem; color: var(--ink-soft); }
+.count-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 12px; max-width: 420px; }
+
+.book-quiz { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+.quiz-hint { font-size: 2.2rem; cursor: pointer; }
+.quiz-q { font-size: .92rem; color: var(--ink-soft); }
+.quiz-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.nope { animation: book-nope .45s ease; border-color: var(--rose) !important; }
+
+.book-line { display: flex; flex-direction: column; gap: 8px; max-width: 560px; cursor: pointer; padding: 12px; }
+.line-ta { font-family: var(--font-ta); font-size: 1.6rem; font-weight: 800; line-height: 1.7; }
+.line-en { font-size: .95rem; color: var(--ink-soft); }

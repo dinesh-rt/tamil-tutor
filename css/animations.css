@@ -287,8 +287,17 @@
 .mo-wobble { animation: kb-wiggle .9s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .pic, .card, .mini, .tile, .curtain, .bg-shape, .hero-elephant, .right, .wrong, .pulse { animation: none !important; }
+  .pic, .card, .mini, .tile, .curtain, .bg-shape, .hero-elephant, .right, .wrong, .pulse, .nope { animation: none !important; }
   .bg { display: none; }
 }
 html[data-motion="reduced"] .bg { display: none; }
 html[data-motion="reduced"] .pic { animation: none !important; }
+
+/* wrong answer in a book quiz */
+@keyframes book-nope {
+  0%,100% { transform: translateX(0) rotate(0); }
+  20% { transform: translateX(-7px) rotate(-3deg); }
+  40% { transform: translateX(7px) rotate(3deg); }
+  60% { transform: translateX(-5px) rotate(-2deg); }
+  80% { transform: translateX(5px) rotate(2deg); }
+}

@@ -253,7 +253,11 @@
       if (timer) { clearTimeout(timer); timer = null; }
       if (opts.onerror) opts.onerror(); else settle(job);
     };
-    timer = setTimeout(function () { timer = null; finish(); }, 9000); // a stuck file must never hang the deck
+    /* a stuck file must never hang the deck — but a word clip is 1-2 s and a
+       narration page is 30 s, so let the caller say how long it runs (books
+       pass `dur` from the pack manifest) instead of cutting every clip short */
+    var limit = Math.max(9000, (opts.dur > 0 ? opts.dur : 0) * 1000 + 4000);
+    timer = setTimeout(function () { timer = null; finish(); }, limit);
     try {
       var p = a.play();
       if (p && p.catch) p.catch(function () { setTimeout(finish, 80); });   // blocked before the first tap
@@ -499,6 +503,10 @@
     cancel: cancel,
     speakText: speakText,
     sayWord: sayWord,
+    /** Play one recording and report when it ends. Books pass `dur` from the
+        pack manifest; without it the anti-stall timer cuts long narration off
+        at 9 s, which is fine for a word clip and wrong for a page. */
+    playClip: playClip,
     sfx: sfx,
     voices: voiceList,
     bestVoice: bestVoice,

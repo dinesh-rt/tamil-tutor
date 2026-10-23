@@ -1,7 +1,7 @@
 {
   "name": "தமிழ் Tutor — Tamil for little ones",
   "short_name": "Tamil Tutor",
-  "description": "Tap-and-hear Tamil flashcards for toddlers: pictures, spoken Tamil and English, and three little games. Offline, no ads, no tracking.",
+  "description": "Tap-and-hear Tamil flashcards and ten little board-books for toddlers: pictures, spoken Tamil and English, and three games. Offline, no ads, no tracking.",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
@@ -20,6 +20,7 @@
   "shortcuts": [
     { "name": "Flashcards", "short_name": "Cards", "url": "./#/cards/animals", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "Games", "short_name": "Games", "url": "./#/play", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Books", "short_name": "Books", "url": "./#/library", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "My stars", "short_name": "Stars", "url": "./#/stickers", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
   ]
 }

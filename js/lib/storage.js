@@ -44,10 +44,11 @@
     minutes: 0,
     lastDay: null,
     streak: 0,
-    byCat: {}
+    byCat: {},
+    books: {}            // id -> {page, reads, finished}
   };
 
-  var CURRENT_VERSION = 3;
+  var CURRENT_VERSION = 4;
 
   function blank() {
     return { version: CURRENT_VERSION, settings: Object.assign({}, DEFAULTS), progress: JSON.parse(JSON.stringify(EMPTY_PROGRESS)), custom: [] };
@@ -88,6 +89,11 @@
       });
       d.progress.words = words;
       return d;
+    },
+    4: function (d) {                    // the book shelf remembers how far you got
+      d.progress = d.progress || {};
+      d.progress.books = d.progress.books || {};
+      return d;
     }
   };
 
@@ -105,6 +111,7 @@
     db.progress.words = (obj.progress && obj.progress.words) || {};
     db.progress.stickers = (obj.progress && obj.progress.stickers) || [];
     db.progress.byCat = (obj.progress && obj.progress.byCat) || {};
+    db.progress.books = (obj.progress && obj.progress.books) || {};
     db.custom = Array.isArray(obj.custom) ? obj.custom : [];
     db.version = obj.version || 1;
     return migrate(db);
@@ -121,6 +128,10 @@
       // keep a last-known-good copy so a half-written save can be recovered
       try { if (readRaw(KEY + '.bak') !== raw) localStorage.setItem(KEY + '.bak', raw); } catch (e) { }
       apply(obj);
+      /* a save that just migrated should not have to wait for the next tap to
+         be written — otherwise the on-disk copy sits on an old version forever
+         and every launch re-runs the migrations against it */
+      if (db.version !== obj.version) save();
     } catch (e) {
       var bak = readRaw(KEY + '.bak');
       if (bak && bak !== raw) {
@@ -287,6 +298,35 @@
     save();
   }
 
+  /* books ------------------------------------------------------------------
+     A finished book leaves exactly one sticker behind, however many times the
+     same child reads it — a second ⭐ for the same book teaches them that
+     stars are not worth anything. */
+  function bookState(id) {
+    var b = db.progress.books && db.progress.books[id];
+    if (!b) return { page: 0, reads: 0, finished: false };
+    return { page: b.page || 0, reads: b.reads || 0, finished: !!b.finished };
+  }
+
+  function markBookPage(id, page) {
+    var b = db.progress.books[id] || (db.progress.books[id] = { page: 0, reads: 0, finished: false });
+    if (page > (b.page || 0)) { b.page = page; save(); }
+  }
+
+  function finishBook(id) {
+    var b = db.progress.books[id] || (db.progress.books[id] = { page: 0, reads: 0, finished: false });
+    var firstTime = !b.finished;
+    b.reads = (b.reads || 0) + 1;
+    b.finished = true;
+    if (firstTime && TT.books && TT.books.get) {
+      var bk = TT.books.get(id);
+      var w = bk && TT.books.firstWord(bk);
+      if (w) addSticker(w, bk.cat);
+    }
+    save();
+    return { firstTime: firstTime };
+  }
+
   function startSession() {
     db.progress.sessions++;
     var t = U.todayKey();
@@ -359,6 +399,9 @@
     boxInfo: boxInfo,
     BOX_DAYS: BOX_DAYS,
     addSticker: addSticker,
+    bookState: bookState,
+    markBookPage: markBookPage,
+    finishBook: finishBook,
     startSession: startSession,
     addMinutes: addMinutes,
     resetProgress: resetProgress,

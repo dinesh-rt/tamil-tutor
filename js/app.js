@@ -45,7 +45,7 @@
 
   function highlightNav(name) {
     U.qsa('.tabbar .tab').forEach(function (t) {
-      t.classList.toggle('on', t.dataset.route === name || (name === 'cat' && t.dataset.route === 'learn'));
+      t.classList.toggle('on', t.dataset.route === name || (name === 'cat' && t.dataset.route === 'learn') || (name === 'book' && t.dataset.route === 'library'));
     });
   }
 
@@ -128,6 +128,8 @@
     var tabs = [
       { route: 'home', icon: '🏠', ta: 'முகப்பு', en: 'Home' },
       { route: 'learn', icon: '📚', ta: 'கற்க', en: 'Learn' },
+      /* the Tamil for this tab is the word bank's own word for "book" */
+      { route: 'library', icon: '📖', ta: (D.getWord('school/book') || {}).ta || 'Books', en: 'Books' },
       { route: 'play', icon: '🎲', ta: 'விளையாடு', en: 'Play' },
       { route: 'stickers', icon: '⭐', ta: 'நட்சத்திரம்', en: 'Stars' }
     ];
