@@ -34,6 +34,7 @@ const SUITES = [
   { file: 'today.js', what: 'leitner boxes, due queue, today\'s deck and route' },
   { file: 'checkup.js', what: 'grown-up device check-up panel' },
   { file: 'zh.js', what: 'the ழ sound: spoken respelling, card letters, sentence fallback' },
+  { file: 'books.js', what: 'book shelf, reader, peek/count/quiz pages, finishing, book progress' },
   { file: 'layout.js', what: 'overflow / tap-size audit', audit: true }
 ];
 

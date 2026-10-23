@@ -40,6 +40,11 @@ TREES = ["css", "js", "icons"]
 AUDIO_KEEP = re.compile(r"^audio/(?:[a-z]{2}/)?(?:[a-z]+/)?[^/]+\.mp3$")
 AUDIO_ALWAYS = ["audio/manifest.json"]
 
+# js/data/library.js points at words by id; every one of them must be a word
+# the recordings actually cover, or a book page goes silent on a phone.
+BOOK_FILE = os.path.join(ROOT, "js", "data", "library.js")
+BOOK_REF = re.compile(r"(?:w|item|num):\s*'([a-z][a-z0-9-]*/[a-z0-9'’-]+)'")
+
 
 def human(n):
     return "%.1f MB" % (n / 1048576) if n >= 1048576 else "%.0f KB" % (n / 1024)
@@ -154,6 +159,22 @@ def check_worker_precache(out):
     return [r for r in refs if not os.path.exists(os.path.join(out, r.rstrip("/") or "."))]
 
 
+def check_books(pack):
+    """Books reference word ids; the pack must have a clip for every one."""
+    if not os.path.exists(BOOK_FILE):
+        return ["js/data/library.js is missing — the shelf has nothing to show"]
+    have = set(pack["files"].keys()) if pack else set()
+    refs = sorted(set(BOOK_REF.findall(open(BOOK_FILE, encoding="utf-8").read())))
+    if not refs:
+        return ["no pages found in js/data/library.js — did the book list survive an edit?"]
+    silent = [r for r in refs if r not in have]
+    out = []
+    if silent:
+        out.append("%d of %d book words have no recording: %s"
+                   % (len(silent), len(refs), ", ".join(silent[:6])))
+    return out, len(refs)
+
+
 def build(out, check_only=False):
     tmp = None
     if check_only:
@@ -198,6 +219,14 @@ def build(out, check_only=False):
     if bad_assets:
         fails.append("sw.js precaches files that are not in the build: " + ", ".join(bad_assets[:5]))
 
+    book_refs = 0
+    if pack:
+        bad_books = check_books(pack)
+        if isinstance(bad_books, tuple):
+            bad_books, book_refs = bad_books
+        for f in bad_books:
+            fails.append("books: " + f)
+
     version = content_version(out)
     stamp_sw(out, "v" + version)
 
@@ -208,6 +237,8 @@ def build(out, check_only=False):
     print("  worker    sw.js  VERSION = 'v%s'   (cache tamil-tutor-v%s)" % (version, version))
     print("  audio     %d files, %s  (%d clips / %d words)"
           % (clips, human(abytes), promised, len(pack["files"]) if pack else 0))
+    if book_refs:
+        print("  books     %d word references checked against the pack" % book_refs)
     print("  total     %s" % human(total))
 
     if fails:

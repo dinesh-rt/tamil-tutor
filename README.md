@@ -70,6 +70,47 @@ for 3 seconds** — small fingers rarely manage that.
 
 ---
 
+## Books — ten little board-books
+
+`📖 Books` (or `#/library`) is a shelf of ten books built out of the words the
+app already knows: a cover, six to eight pages, and a celebration at the end
+that leaves one ⭐ on the shelf.
+
+```bash
+npm run site -- --check     # also checks every book word has a recording
+```
+
+| Page | What happens |
+|---|---|
+| word | one big card, tap it to hear the recording again |
+| hidden | leaves and a `❓` until a finger finds it — peek-a-boo with vocabulary |
+| count | “two kites”, that many pictures, the number said in Tamil |
+| quiz | one word spoken, three pictures, tap the one you heard |
+| end | applause, confetti, and the sticker |
+
+Pages turn with the round buttons, `←` `→`, or `▶▶` which reads the whole book
+by itself — useful at bedtime on a laptop, useless on a phone with the screen
+off, because iOS Safari stops a web app's audio when the screen sleeps.
+
+**Why these ten are made of word cards.** A book is only worth shipping if the
+Tamil on the page and the Tamil in the ear are both right, and this repo has no
+authority to invent sentences. So every page quotes an existing word entry, and
+the book titles are the word bank's own category names — nothing here needed a
+new recording or a new phrase. When real stories arrive (a grandparent on a
+phone, a CC-BY publisher), the reader already understands
+`{k:'line', ta, en, clip:'books/x/p01.mp3', dur}` and will play them unchanged.
+
+That is also why `playClip` now takes `dur`: the deck's anti-stall timer cut
+every clip off at 9 seconds, which is invisible on a 1-second word clip and
+would have talked over the middle of every narration page. `tools/build-site.py`
+fails the build if a book points at a word the recordings don't cover — the
+same class of silent failure as a missing voice pack.
+
+The shelf remembers where each book was left off, and a book pays out its star
+once: re-reading it counts, farming it does not.
+
+---
+
 ## Adding your own words
 
 Words live in `js/data/*.js`. Open the file for the right group and add a line:
