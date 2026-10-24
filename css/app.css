@@ -761,5 +761,18 @@ html[data-motion="reduced"] * { animation: none !important; transition-duration:
 .moral-ro { font-size: .9rem; color: var(--ink-soft); font-style: italic; }
 .moral-en { font-size: .95rem; color: var(--ink-soft); }
 .book-tile[data-story="1"] { border-style: double; border-width: 5px; }
+
+/* covers. The shelf is what a two-year-old scans with a grown-up's thumb, so
+   the picture is the tile now and the emoji demotes to a corner badge — but it
+   never disappears, because a webp that fails to load must not take a book
+   with it */
+.book-tile { position: relative; }
+.book-art { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover;
+            border-radius: 12px; margin-bottom: 8px; background: #fdf6ec; }
+.book-art[data-missing="1"] { display: none; }
+.book-tile.has-art .book-ico { position: absolute; top: 8px; right: 10px; font-size: 1.3rem;
+                               filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
+.cover-art { display: block; width: min(78%, 320px); margin: 0 auto 10px; border-radius: 18px;
+             box-shadow: 0 8px 22px rgba(80, 60, 20, .18); }
 .line-ta { font-family: var(--font-ta); font-size: 1.6rem; font-weight: 800; line-height: 1.7; }
 .line-en { font-size: .95rem; color: var(--ink-soft); }

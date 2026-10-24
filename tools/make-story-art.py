@@ -18,6 +18,7 @@ Style is fixed per book by --style plus a fixed --seed, because ten books in
 ten styles is a ransom note, not a shelf.
 """
 import argparse
+import glob
 import hashlib
 import json
 import os
@@ -124,6 +125,10 @@ AUDITION = {
               "pot with its beak, a mango tree behind, warm morning light",
     "character": "one brown crow with a round body, a friendly round eye and a short beak",
 }
+
+
+def human(n):
+    return "%.1f MB" % (n / 1048576) if n >= 1048576 else "%.0f KB" % (n / 1024)
 
 
 def slug(text):
@@ -255,7 +260,7 @@ def metrics(path):
     return {"colours": colours, "buckets16": palette_spread, "bg_dev": round(bg_dev, 1), "edges": round(edges, 1)}
 
 
-def flatten(src, dst, colours=10, tol=42):
+def flatten_image(im, colours=10, tol=42):
     """The consistency lock, applied after the sampler had its opinion.
 
     No prompt holds a diffusion model to one look across ninety pages, so the
@@ -266,8 +271,7 @@ def flatten(src, dst, colours=10, tol=42):
     every frame. The human still decides whether the crow looks right.
     """
     from PIL import Image
-    im = Image.open(src).convert("RGB")
-    pal = im.quantize(colors=colours, method=Image.Quantize.MEDIANCUT).convert("RGB")
+    pal = im.convert("RGB").quantize(colors=colours, method=Image.Quantize.MEDIANCUT).convert("RGB")
 
     # the dominant colour of the border strip is the "paper"; make it exactly one colour
     w, h = pal.size
@@ -290,8 +294,41 @@ def flatten(src, dst, colours=10, tol=42):
                 op[x, y] = paper
             else:
                 op[x, y] = (r, g, b)
-    out.save(dst, optimize=True)
+    return out
+
+
+def flatten(src, dst, colours=10, tol=42):
+    from PIL import Image
+    flatten_image(Image.open(src), colours, tol).save(dst, optimize=True)
     return os.path.getsize(dst)
+
+
+def promote(book_id, out, colours, src=None):
+    """Turn an approved render into the one stable filename the app points at.
+
+    Generated filenames carry a content hash, which is exactly what you want in
+    a cache and useless in a data file that has to name its picture. So the
+    chosen render is flattened to the shelf palette and copied under a fixed
+    name: re-running this swaps the cover without a line of app code changing,
+    and stories.js can say cover-<id>.webp and be true.
+    """
+    from PIL import Image
+    if not src:
+        cands = sorted(glob.glob(os.path.join(out, "cover_%s_*.png" % book_id)), key=os.path.getmtime)
+        if not cands:
+            print("   ✗ nothing rendered for %s yet — --covers --only %s" % (book_id, book_id))
+            return None
+        src = cands[-1]
+    im = Image.open(src)
+    before = metrics(src) or {}
+    flat = flatten_image(im, colours)
+    dst = os.path.join(out, "cover-%s.webp" % book_id)
+    flat.save(dst, "WEBP", quality=90, method=6)
+    print("   ✓ %s  %d KB  from %s  (colours %s → %s, background %s → %s)"
+          % (dst, os.path.getsize(dst) // 1024, os.path.basename(src),
+             before.get("colours"), (metrics(dst) or {}).get("colours"),
+             before.get("bg_dev"), (metrics(dst) or {}).get("bg_dev")))
+    return dst
 
 
 def one(style, prompt, w, h, seed, steps, out, prefix, timeout, dry=False, skip=False):
@@ -336,6 +373,8 @@ def main():
     ap.add_argument("--prefix", default="audition")
     ap.add_argument("--timeout", type=int, default=1200)
     ap.add_argument("--candidates", action="store_true", help="the same scene in all three styles")
+    ap.add_argument("--promote", metavar="STORY_ID", help="flatten the chosen cover into the stable name the app uses")
+    ap.add_argument("--promote-all", action="store_true", help="promote every cover rendered so far")
     ap.add_argument("--flatten", metavar="DIR", help="post-process every png in DIR to a flat palette + solid background")
     ap.add_argument("--colours", type=int, default=10, help="palette size for --flatten (default 10)")
     ap.add_argument("--covers", action="store_true", help="render the ten book covers in the locked style")
@@ -359,6 +398,18 @@ def main():
                 a.dry_run, a.skip_existing)
         if not a.dry_run:
             print("\n→ %s\nTen covers, one style, one seed each. Eyes on these before the eighty pages." % out)
+        return
+
+    if a.promote or a.promote_all:
+        from PIL import Image  # noqa: F401
+        out = a.out if a.out != OUT_DEFAULT else os.path.join(ROOT, "images", "books")
+        ids = COVER_SUBJECTS if a.promote_all else [a.promote]
+        n = 0
+        for i in ids:
+            if promote(i, out, a.colours):
+                n += 1
+        total = sum(os.path.getsize(f) for f in glob.glob(os.path.join(out, "cover-*.webp")))
+        print("\n%d covers promoted, %s total on the shelf" % (n, human(total)))
         return
 
     if a.flatten:

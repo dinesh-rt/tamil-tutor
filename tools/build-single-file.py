@@ -52,7 +52,12 @@ def build_html(extra_head="", keep_pwa=False):
         html = re.sub(r'\s*<link rel="manifest"[^>]*>', "", html)
         html = re.sub(r'\s*<link rel="icon"[^>]*>', "", html)
         html = re.sub(r'\s*<link rel="apple-touch-icon"[^>]*>', "", html)
-        html = re.sub(r'\s*<link rel="preload"[^>]*>', "", html)
+
+    # script preloads name files a bundle does not have — and they are wrong for
+    # both builds, since both inline their scripts. Only icon preloads survive,
+    # and only in the installable build.
+    html = re.sub(r'\s*<link[^>]*rel="preload"[^>]*as="script"[^>]*>', "", html)
+    html = re.sub(r'\s*<link[^>]*as="script"[^>]*rel="preload"[^>]*>', "", html)
 
     for rel in CSS:
         tag = f'<link rel="stylesheet" href="{rel}">'
@@ -82,7 +87,11 @@ def build_html(extra_head="", keep_pwa=False):
 
 
 def main():
-    html, total_js = build_html()
+    # The bundle is one file: it has no images beside it, so tell the app not to
+    # go looking. Without this the shelf asks for ten covers that cannot exist,
+    # falls back to the emoji as designed, and leaves ten console errors behind
+    # — noise that hides the failures worth reading.
+    html, total_js = build_html('<script>window.TT_SINGLE_FILE = true;</script>')
 
     os.makedirs(OUT_DIR, exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as fh:

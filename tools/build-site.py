@@ -147,12 +147,55 @@ def copy_story_audio(out, sp):
     made = [b for b, rec in sp.get("books", {}).items() if rec.get("complete")]
     for rel in AUDIO_ALWAYS:
         src = os.path.join(ROOT, rel)
-        if os.path.exists(src):
+        # pack-index.js is a file:// artefact: over http the app reads the
+        # manifest itself, and a baked-in stale copy is how silent books ship
+        if os.path.exists(src) and os.path.basename(src) != "pack-index.js":
             dst = os.path.join(out, rel)
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.copy2(src, dst)
     size = dir_size(os.path.join(out, "audio", "books")) if os.path.isdir(os.path.join(out, "audio", "books")) else 0
     return n, size, silent, len(made), len(sp.get("books", {}))
+
+
+def copy_images(out):
+    """Copy the app's images into the site — webp and svg only.
+
+    The raw renders are png and sit next to the promoted covers in the same
+    folder, so a rule about folder names was not enough: a deploy quietly
+    carried 7.8 MB of outtakes to every phone. If it is not a format the app
+    can point at, it does not ship.
+    """
+    src_root = os.path.join(ROOT, "images")
+    if not os.path.isdir(src_root):
+        return 0, 0
+    n = size = 0
+    for dirpath, dirnames, filenames in os.walk(src_root):
+        dirnames[:] = [d for d in dirnames if not d.startswith("_")]
+        for f in filenames:
+            if not f.lower().endswith((".webp", ".svg")):
+                continue
+            src = os.path.join(dirpath, f)
+            rel = os.path.relpath(src, ROOT)
+            dst = os.path.join(out, rel)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copy2(src, dst)
+            n += 1
+            size += os.path.getsize(src)
+    return n, size
+
+
+def check_covers(spack):
+    """Every narrated story promises a cover. A missing one is a build failure.
+
+    The app degrades to an emoji so no child ever sees a broken image, but a
+    shelf of emojis is not a book shelf, and the deploy that quietly loses ten
+    covers is exactly the kind of thing that should stop here rather than be
+    noticed by a three-year-old.
+    """
+    if not spack:
+        return []
+    return [b for b in spack.get("books", {})
+            if not os.path.exists(os.path.join(ROOT, "images", "books", "cover-%s.webp" % b))]
 
 
 def content_version(out):
@@ -272,6 +315,13 @@ def build(out, check_only=False):
             fails.append("audio/books/ has recordings but no audio/books/manifest.json — "
                          "the app cannot tell which stories are narrated")
 
+    img_n, img_bytes = copy_images(out)
+    no_cover = check_covers(spack)
+    if no_cover:
+        fails.append("%d narrated stor%s have no cover on disk — %s"
+                     % (len(no_cover), "y" if len(no_cover) == 1 else "ies",
+                        ", ".join(no_cover[:4])))
+
     bad_refs = check_index(out)
     if bad_refs:
         fails.append("index.html points at files that are not in the build: " + ", ".join(bad_refs[:5]))
@@ -302,6 +352,8 @@ def build(out, check_only=False):
     if spack:
         print("  stories   %d of %d narrated, %d clips, %s"
               % (snarrated, sdescribed, sclips, human(sbytes)))
+        print("  covers    %d images copied, %s%s"
+              % (img_n, human(img_bytes), "" if not no_cover else "  ⚠️  missing: " + ", ".join(no_cover)))
     print("  total     %s" % human(total))
 
     if fails:

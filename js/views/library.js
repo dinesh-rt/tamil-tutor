@@ -75,11 +75,23 @@
     else if (st.page > 0) meta = '▶ page ' + Math.min(st.page + 1, n) + '/' + n;
     else meta = n + ' pages';
 
+    var ico = U.el('span.book-ico', { text: b.icon, 'aria-hidden': 'true' });
+    /* Art is a promise the build has to keep, but a missing webp must never
+       take the tile with it: the emoji was the cover first, and stays the
+       fallback if a phone is offline on a day the pictures never arrived. */
+    var art = null;
+    if (b.art) {
+      art = U.el('img.book-art', { src: b.art, alt: b.en, loading: 'lazy' });
+      art.addEventListener('error', function () { art.setAttribute('data-missing', '1'); });
+      art.addEventListener('load', function () { t.classList.add('has-art'); });
+    }
+
     var t = U.el('button.book-tile', {
       type: 'button', role: 'listitem', 'aria-label': b.en + ' — ' + b.ta,
       dataset: { id: b.id, story: b.story ? '1' : '0' }
     }, [
-      U.el('span.book-ico', { text: b.icon, 'aria-hidden': 'true' }),
+      art,
+      ico,
       U.el('span.book-ta.tamil', { text: b.ta }),
       U.el('span.book-en', { text: b.en }),
       U.el('span.book-meta', { text: meta, dataset: { done: st.finished ? '1' : '0' } })
@@ -214,7 +226,10 @@
       }
 
       function pageCover() {
+        var art = b.art ? U.el('img.cover-art', { src: b.art, alt: b.en }) : null;
+        if (art) art.addEventListener('error', function () { art.parentNode.removeChild(art); });
         var c = U.el('div.book-cover', {}, [
+          art,
           U.el('div.cover-ico', { text: b.icon, 'aria-hidden': 'true' }),
           U.el('div.cover-ta.tamil', { text: b.ta }),
           U.el('div.cover-en', { text: b.en }),

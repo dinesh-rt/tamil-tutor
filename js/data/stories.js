@@ -23,6 +23,10 @@
   function story(def) {
     def.story = true;
     def.ages = def.ages || '3-6';
+    /* the stable cover name, not the generated one — tools/make-story-art.py
+       --promote writes this file, and re-promoting swaps the picture without
+       a line of data changing here */
+    def.art = def.art || 'images/books/cover-' + def.id + '.webp';
     def.pages = (def.pages || []).map(function (p, i) {
       var nn = ('0' + (i + 1)).slice(-2);
       return {

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- Single-file build of தமிழ் Tutor — generated 2026-10-23. Open it directly, it works with no server. -->
-
+<script>window.TT_SINGLE_FILE = true;</script>
 <title>தமிழ் Tutor · Tamil for little ones</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="description" content="A tap-and-hear Tamil flashcard app for toddlers: pictures, spoken Tamil and English, and three little games. Works offline, no ads, no tracking.">
@@ -778,6 +778,19 @@ html[data-motion="reduced"] * { animation: none !important; transition-duration:
 .moral-ro { font-size: .9rem; color: var(--ink-soft); font-style: italic; }
 .moral-en { font-size: .95rem; color: var(--ink-soft); }
 .book-tile[data-story="1"] { border-style: double; border-width: 5px; }
+
+/* covers. The shelf is what a two-year-old scans with a grown-up's thumb, so
+   the picture is the tile now and the emoji demotes to a corner badge — but it
+   never disappears, because a webp that fails to load must not take a book
+   with it */
+.book-tile { position: relative; }
+.book-art { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover;
+            border-radius: 12px; margin-bottom: 8px; background: #fdf6ec; }
+.book-art[data-missing="1"] { display: none; }
+.book-tile.has-art .book-ico { position: absolute; top: 8px; right: 10px; font-size: 1.3rem;
+                               filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
+.cover-art { display: block; width: min(78%, 320px); margin: 0 auto 10px; border-radius: 18px;
+             box-shadow: 0 8px 22px rgba(80, 60, 20, .18); }
 .line-ta { font-family: var(--font-ta); font-size: 1.6rem; font-weight: 800; line-height: 1.7; }
 .line-en { font-size: .95rem; color: var(--ink-soft); }
 
@@ -2427,6 +2440,9 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     });
     if (!def.pages.length) return;
     if (def.story) def.ready = !!(storyPack && storyPack[def.id]);
+    /* the single-file bundle is one file with nothing beside it, so a cover it
+       cannot have is not worth a request; the emoji was the cover first */
+    if (typeof window !== 'undefined' && window.TT_SINGLE_FILE) def.art = null;
     if (!byId[def.id]) { books.push(def); byId[def.id] = def; }
   }
 
@@ -2634,6 +2650,10 @@ html[data-motion="reduced"] .pic { animation: none !important; }
   function story(def) {
     def.story = true;
     def.ages = def.ages || '3-6';
+    /* the stable cover name, not the generated one — tools/make-story-art.py
+       --promote writes this file, and re-promoting swaps the picture without
+       a line of data changing here */
+    def.art = def.art || 'images/books/cover-' + def.id + '.webp';
     def.pages = (def.pages || []).map(function (p, i) {
       var nn = ('0' + (i + 1)).slice(-2);
       return {
@@ -4973,11 +4993,23 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     else if (st.page > 0) meta = '▶ page ' + Math.min(st.page + 1, n) + '/' + n;
     else meta = n + ' pages';
 
+    var ico = U.el('span.book-ico', { text: b.icon, 'aria-hidden': 'true' });
+    /* Art is a promise the build has to keep, but a missing webp must never
+       take the tile with it: the emoji was the cover first, and stays the
+       fallback if a phone is offline on a day the pictures never arrived. */
+    var art = null;
+    if (b.art) {
+      art = U.el('img.book-art', { src: b.art, alt: b.en, loading: 'lazy' });
+      art.addEventListener('error', function () { art.setAttribute('data-missing', '1'); });
+      art.addEventListener('load', function () { t.classList.add('has-art'); });
+    }
+
     var t = U.el('button.book-tile', {
       type: 'button', role: 'listitem', 'aria-label': b.en + ' — ' + b.ta,
       dataset: { id: b.id, story: b.story ? '1' : '0' }
     }, [
-      U.el('span.book-ico', { text: b.icon, 'aria-hidden': 'true' }),
+      art,
+      ico,
       U.el('span.book-ta.tamil', { text: b.ta }),
       U.el('span.book-en', { text: b.en }),
       U.el('span.book-meta', { text: meta, dataset: { done: st.finished ? '1' : '0' } })
@@ -5112,7 +5144,10 @@ html[data-motion="reduced"] .pic { animation: none !important; }
       }
 
       function pageCover() {
+        var art = b.art ? U.el('img.cover-art', { src: b.art, alt: b.en }) : null;
+        if (art) art.addEventListener('error', function () { art.parentNode.removeChild(art); });
         var c = U.el('div.book-cover', {}, [
+          art,
           U.el('div.cover-ico', { text: b.icon, 'aria-hidden': 'true' }),
           U.el('div.cover-ta.tamil', { text: b.ta }),
           U.el('div.cover-en', { text: b.en }),

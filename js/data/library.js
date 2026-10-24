@@ -92,6 +92,9 @@
     });
     if (!def.pages.length) return;
     if (def.story) def.ready = !!(storyPack && storyPack[def.id]);
+    /* the single-file bundle is one file with nothing beside it, so a cover it
+       cannot have is not worth a request; the emoji was the cover first */
+    if (typeof window !== 'undefined' && window.TT_SINGLE_FILE) def.art = null;
     if (!byId[def.id]) { books.push(def); byId[def.id] = def; }
   }
 
