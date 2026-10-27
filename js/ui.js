@@ -15,7 +15,9 @@
       inner = n > 1 ? '<span class="emoji-grid n-' + n + '">' + bits.join('') + '</span>' : bits[0];
     }
     var sym = word.sym ? '<span class="sym-badge">' + U.esc(word.sym) + '</span>' : '';
-    return '<span class="pic mo-' + U.esc(word.mo || 'pop') + ' ' + (cls || '') + '">' + sym + inner + '</span>';
+    /* Only verbs (and a few always-moving things) carry an `mo` animation.
+       Everything else is a still picture — calmer to look at for a toddler. */
+    return '<span class="pic ' + (word.mo ? 'mo-' + U.esc(word.mo) : 'mo-still') + ' ' + (cls || '') + '">' + sym + inner + '</span>';
   }
 
   /* ------------------------------------------------------------------ cards */

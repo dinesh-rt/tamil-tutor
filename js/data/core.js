@@ -71,7 +71,7 @@
       ta: String(w.ta).trim(),
       ro: String(w.ro).trim(),
       img: String(w.img).trim(),
-      mo: w.mo || 'pop',
+      mo: w.mo || null, /* no animation = a still picture, which is most words */
       say: w.say || null,
       note: w.note || null,
       tag: [].concat(w.tag || [])

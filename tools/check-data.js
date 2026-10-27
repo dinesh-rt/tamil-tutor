@@ -51,6 +51,11 @@ const TAMIL = /[\u0B80-\u0BFF]/;
 const EMOJI = /^[\u{1F000}-\u{1FAFF}\u{2300}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}\u{1F1E6}-\u{1F1FF}0-9#*]+$/u;
 const LATIN_ONLY_SOUND = /^[a-z0-9 .'\-()]+$/;
 
+/* `mo` is now opt-in: a word without one is a still picture. Anything that
+   does ask for movement must name a class that actually exists. */
+const MOTION_CSS = fs.readFileSync(path.join(ROOT, 'css/animations.css'), 'utf8');
+const MOTION = new Set(Array.from(MOTION_CSS.matchAll(/\.mo-([a-z0-9-]+)/g), (m) => m[1]));
+
 const problems = [];
 const warn = (word, msg) => problems.push(`[${word ? word.cat : '?'}] ${word ? word.en + ': ' : ''}${msg}`);
 
@@ -84,7 +89,7 @@ words.forEach((w) => {
   if (w.q != null && (!Number.isInteger(w.q) || w.q < 1 || w.q > 10)) warn(w, `q must be 1..10 (${w.q})`);
   if (seenIds.has(w.id)) warn(w, `duplicate id ${w.id} (also ${seenIds.get(w.id)})`);
   else seenIds.set(w.id, w.id);
-  if (!w.mo) warn(w, 'no animation name (mo)');
+  if (w.mo && !MOTION.has(w.mo)) warn(w, `animation '${w.mo}' has no .mo-${w.mo} class in css/animations.css`);
 });
 
 /* duplicates within a category are the most common copy-paste accident */
@@ -99,11 +104,13 @@ byCat.forEach((n, key) => {
 });
 
 const counts = words.length;
+const still = words.filter((w) => !w.mo).length;
 const longest = words.reduce((a, w) => (w.ta || '').length > (a.ta || '').length ? w : a, words[0]);
 const noSentence = words.filter((w) => !w.say).length;
 
 console.log(`categories : ${cats.length}`);
 console.log(`words      : ${counts}`);
+console.log(`pictures   : ${still} still, ${counts - still} animated (verbs and things that move)`);
 console.log(`with a "say this" sentence: ${counts - noSentence} (${Math.round(((counts - noSentence) / counts) * 100)}%)`);
 console.log(`longest Tamil word: ${longest.ta} (${longest.en})`);
 console.log(`sprites    : ${SPRITES.length}`);

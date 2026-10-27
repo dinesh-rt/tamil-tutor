@@ -129,6 +129,8 @@
 
 /* ---- name → animation table ---- */
 .pic { transform-origin: 50% 60%; display: inline-block; }
+/* the everyday case: a word that just sits there and looks like itself */
+.mo-still { animation: none; }
 .mo-bounce, .mo-jump, .mo-hop, .mo-beat, .mo-stomp, .mo-march, .mo-step, .mo-kick, .mo-drop, .mo-up, .mo-launch, .mo-sit, .mo-shrug, .mo-yawn, .mo-nod, .mo-bow, .mo-salute, .mo-knock { animation: kb-bob 1.5s ease-in-out infinite; }
 .mo-jump { animation-name: kb-jump; }
 .mo-hop, .mo-peek { animation-name: kb-hop; }

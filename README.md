@@ -129,8 +129,8 @@ D.words('animals', [
 | `en` | English word *(required)* |
 | `ta` | Tamil word in Tamil script *(required)* |
 | `ro` | Romanised spelling — used by the voice when the device has no Tamil voice, and shown under the Tamil word |
-| `img` | Any emoji, or `svg:name` for the hand-drawn sprites (`papaya`, `pomegranate`, `guava`, `jackfruit`, `idli`, `laddu`, `murukku`, `kuzhal`, `kolam`, `head`, `belly`, `star`) |
-| `mo` | Animation name — see *Motion* below |
+| `img` | Any emoji, or `svg:name` for the hand-drawn sprites (`papaya`, `pomegranate`, `guava`, `jackfruit`, `idli`, `laddu`, `murukku`, `kuzhal`, `kolam`, `head`, `belly`, `okra`, `bottlegourd`, `seahorse`, `neck`, `star`) |
+| `mo` | Optional animation name — see *Motion* below. Leave it out and the picture stays still |
 | `say` | Optional short Tamil sentence shown as a 💬 chip; tapping it speaks the whole sentence |
 | `q` | For number words: how many pictures to show (`1`–`10`) |
 | `sym` | Optional Tamil numeral/digit badge shown on the card |
@@ -175,13 +175,21 @@ are saved in `localStorage` — handy for words your family actually uses.
 
 ## Motion
 
-Each word carries a `mo` name (`bounce`, `sway`, `flutter`, `drive`, `steam`,
-`stomp`, `sing`, `waddle`, `blink` … — ~140 of them) and `css/animations.css`
-maps those names onto ~80 keyframes, so the picture keeps doing something while
-the child listens.
+A picture is **still** unless the word asks for movement. Only things that are
+actually doing something move: the 64 verbs in *Actions* and a small set of
+always-moving nature words (rain, river, sea, wind, fire, stars, clouds, the
+spinning earth, storm, lightning, thunder, snow, breeze, laughing, crying).
+Everything else — a mango, a giraffe, a spoon — is shown as a plain picture, so
+the screen is calm and the child looks at the *word*, not at the wobble.
 
-Pick a sensible one: an animal bounces, a bird flaps, a car drives, tea steams,
-a fan spins, a heart beats. Unknown names simply render still.
+To animate a word, give it a `mo` name (`bounce`, `sway`, `flutter`, `drive`,
+`steam`, `stomp`, `sing`, `waddle`, `blink` … — ~140 of them) and
+`css/animations.css` maps those names onto ~80 keyframes. `tools/check-data.js`
+complains if the name has no matching `.mo-…` class, and unknown names simply
+render still.
+
+Verbs are the ones worth animating: `swim`, `clap`, `stomp` teach the action
+itself, so the animation *is* the meaning. A static noun does not need one.
 
 Motion is switched off automatically for `prefers-reduced-motion`, and manually
 with **Grown-up corner → Behaviour → Less motion**.
