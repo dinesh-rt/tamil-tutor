@@ -27,6 +27,11 @@
        --promote writes this file, and re-promoting swaps the picture without
        a line of data changing here */
     def.art = def.art || 'images/books/cover-' + def.id + '.webp';
+    /* Page art is named, not listed, for the same reason the clips are: the
+       page number is the identity. --promote-pages writes
+       images/books/p-<id>-<nn>.webp and the page finds its picture with no
+       data edit. A page that has no file yet simply shows no picture — see
+       the 404 latch in views/library.js. */
     def.pages = (def.pages || []).map(function (p, i) {
       var nn = ('0' + (i + 1)).slice(-2);
       return {
@@ -35,13 +40,16 @@
         ro: p.ro || '',
         en: p.en || '',
         clip: 'audio/books/' + def.id + '/p' + nn + '.mp3',
+        art: p.art || 'images/books/p-' + def.id + '-' + nn + '.webp',
         dur: p.dur || 0
       };
     });
     if (def.moral) {
       def.pages.push({
         k: 'moral', ta: def.moral.ta, ro: def.moral.ro || '', en: def.moral.en || '',
-        clip: 'audio/books/' + def.id + '/p-moral.mp3', dur: def.moral.dur || 0
+        clip: 'audio/books/' + def.id + '/p-moral.mp3',
+        art: def.moral.art || 'images/books/p-' + def.id + '-moral.webp',
+        dur: def.moral.dur || 0
       });
     }
     B.book(def);

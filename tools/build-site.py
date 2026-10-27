@@ -198,6 +198,39 @@ def check_covers(spack):
             if not os.path.exists(os.path.join(ROOT, "images", "books", "cover-%s.webp" % b))]
 
 
+def check_pages(spack):
+    """How much of the interior art has actually been drawn.
+
+    Deliberately a report and not a failure, unlike check_covers: a cover is
+    the shelf, and an emoji shelf is not a shelf. A story page is the Tamil
+    line first — it is narrated, it is readable, and it is a complete book
+    with no picture at all. So the build says "53 of 86 illustrated" and lets
+    a half-drawn book ship, because the alternative is holding a finished
+    story hostage behind a GPU run.
+
+    The app names a page's picture from its number (p-<id>-<nn>.webp), which
+    is why the expected list comes from the narration manifest rather than
+    from a second hand-written list that could disagree with the text.
+    """
+    if not spack:
+        return 0, 0, []
+    have = want = 0
+    missing = []
+    for bid, rec in spack.get("books", {}).items():
+        if not rec.get("complete"):
+            continue
+        n = 0
+        for p in rec.get("pages", []):
+            key = "moral" if p.get("k") == "moral" else "%02d" % (n + 1)
+            n += 1
+            want += 1
+            if os.path.exists(os.path.join(ROOT, "images", "books", "p-%s-%s.webp" % (bid, key))):
+                have += 1
+            else:
+                missing.append("%s:%s" % (bid, key))
+    return have, want, missing
+
+
 def content_version(out):
     """Short hash over the app shell + the clip list.
 
@@ -321,6 +354,7 @@ def build(out, check_only=False):
         fails.append("%d narrated stor%s have no cover on disk — %s"
                      % (len(no_cover), "y" if len(no_cover) == 1 else "ies",
                         ", ".join(no_cover[:4])))
+    art_have, art_want, art_missing = check_pages(spack)
 
     bad_refs = check_index(out)
     if bad_refs:
@@ -354,6 +388,11 @@ def build(out, check_only=False):
               % (snarrated, sdescribed, sclips, human(sbytes)))
         print("  covers    %d images copied, %s%s"
               % (img_n, human(img_bytes), "" if not no_cover else "  ⚠️  missing: " + ", ".join(no_cover)))
+        if art_want:
+            pct = (100.0 * art_have / art_want) if art_want else 0
+            print("  pages     %d of %d story pages illustrated (%d%%)%s"
+                  % (art_have, art_want, round(pct),
+                     "" if not art_missing else "  ⚠️  e.g. " + ", ".join(art_missing[:4])))
     print("  total     %s" % human(total))
 
     if fails:

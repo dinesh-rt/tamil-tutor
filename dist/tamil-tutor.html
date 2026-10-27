@@ -2,7 +2,7 @@
 <html lang="en" data-theme="day">
 <head>
 <meta charset="utf-8">
-<!-- Single-file build of தமிழ் Tutor — generated 2026-10-26. Open it directly, it works with no server. -->
+<!-- Single-file build of தமிழ் Tutor — generated 2026-10-27. Open it directly, it works with no server. -->
 <script>window.TT_SINGLE_FILE = true;</script>
 <title>தமிழ் Tutor · Tamil for little ones</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
@@ -770,6 +770,16 @@ html[data-motion="reduced"] * { animation: none !important; transition-duration:
 
 /* a story page: one spoken line of Tamil, big enough to read with a lap-top */
 .book-line { display: flex; flex-direction: column; gap: 8px; max-width: 560px; cursor: pointer; padding: 12px; }
+
+/* the picture for this one line. Generated 4:3, capped so the Tamil under it
+   stays the biggest thing on the screen — a page with no art simply has no
+   img element at all (see the 404 latch in views/library.js) */
+.line-art { display: block; width: min(100%, 400px); aspect-ratio: 4 / 3; object-fit: cover;
+            margin: 0 auto 4px; border-radius: 20px; background: #fdf6ec;
+            box-shadow: 0 6px 18px rgba(80, 60, 20, .14); }
+.moral-art { display: block; width: min(72%, 300px); aspect-ratio: 4 / 3; object-fit: cover;
+             margin: 0 auto; border-radius: 20px; background: #fdf6ec;
+             box-shadow: 0 6px 18px rgba(80, 60, 20, .14); }
 
 /* the closing sentence of a story — set apart so it reads as the takeaway */
 .book-moral { display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 540px; cursor: pointer; padding: 16px 12px; }
@@ -2469,8 +2479,12 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     if (!def.pages.length) return;
     if (def.story) def.ready = !!(storyPack && storyPack[def.id]);
     /* the single-file bundle is one file with nothing beside it, so a cover it
-       cannot have is not worth a request; the emoji was the cover first */
-    if (typeof window !== 'undefined' && window.TT_SINGLE_FILE) def.art = null;
+       cannot have is not worth a request; the emoji was the cover first, and a
+       story page without its picture is still a page — the Tamil line is the page */
+    if (typeof window !== 'undefined' && window.TT_SINGLE_FILE) {
+      def.art = null;
+      def.pages.forEach(function (p) { p.art = null; });
+    }
     if (!byId[def.id]) { books.push(def); byId[def.id] = def; }
   }
 
@@ -2682,6 +2696,11 @@ html[data-motion="reduced"] .pic { animation: none !important; }
        --promote writes this file, and re-promoting swaps the picture without
        a line of data changing here */
     def.art = def.art || 'images/books/cover-' + def.id + '.webp';
+    /* Page art is named, not listed, for the same reason the clips are: the
+       page number is the identity. --promote-pages writes
+       images/books/p-<id>-<nn>.webp and the page finds its picture with no
+       data edit. A page that has no file yet simply shows no picture — see
+       the 404 latch in views/library.js. */
     def.pages = (def.pages || []).map(function (p, i) {
       var nn = ('0' + (i + 1)).slice(-2);
       return {
@@ -2690,13 +2709,16 @@ html[data-motion="reduced"] .pic { animation: none !important; }
         ro: p.ro || '',
         en: p.en || '',
         clip: 'audio/books/' + def.id + '/p' + nn + '.mp3',
+        art: p.art || 'images/books/p-' + def.id + '-' + nn + '.webp',
         dur: p.dur || 0
       };
     });
     if (def.moral) {
       def.pages.push({
         k: 'moral', ta: def.moral.ta, ro: def.moral.ro || '', en: def.moral.en || '',
-        clip: 'audio/books/' + def.id + '/p-moral.mp3', dur: def.moral.dur || 0
+        clip: 'audio/books/' + def.id + '/p-moral.mp3',
+        art: def.moral.art || 'images/books/p-' + def.id + '-moral.webp',
+        dur: def.moral.dur || 0
       });
     }
     B.book(def);
@@ -5099,6 +5121,22 @@ html[data-motion="reduced"] .pic { animation: none !important; }
       var stage = U.el('div.book-stage', { role: 'group', 'aria-label': b.en });
       host.appendChild(stage);
 
+      /* A page's picture is named by its number, so a book either has its art
+         or does not. One 404 for a book switches the rest of that book's pages
+         off — a shelf whose pictures never arrived should stop asking rather
+         than fire eighty-six failing requests every read-through. The Tamil
+         line is the page; the picture is along for the ride. */
+      var artDead = {};
+      function pageArt(p, cls) {
+        if (!p.art || artDead[b.id]) return null;
+        var im = U.el('img.' + cls, { src: p.art, alt: p.en || b.en, loading: 'lazy' });
+        im.addEventListener('error', function () {
+          artDead[b.id] = true;
+          if (im.parentNode) im.parentNode.removeChild(im);
+        });
+        return im;
+      }
+
       var prev = U.el('button.btn.btn-round', { type: 'button', text: '◀', 'aria-label': 'Previous page' });
       var replay = U.el('button.btn.btn-round', { type: 'button', text: '🔉', 'aria-label': 'Say it again' });
       var next = U.el('button.btn.btn-round.next', { type: 'button', text: '▶', 'aria-label': 'Next page' });
@@ -5270,6 +5308,7 @@ html[data-motion="reduced"] .pic { animation: none !important; }
 
       function pageLine(p) {
         var box = U.el('div.book-line', {}, [
+          pageArt(p, 'line-art'),
           U.el('div.line-ta.tamil', { text: p.ta }),
           p.en ? U.el('div.line-en', { text: p.en }) : null
         ]);
@@ -5282,6 +5321,7 @@ html[data-motion="reduced"] .pic { animation: none !important; }
         /* the last page of a story is the grown-up sentence the child is left
            with — set it apart from a story line so it reads as the takeaway */
         var box = U.el('div.book-moral', {}, [
+          pageArt(p, 'moral-art'),
           U.el('div.moral-mark', { text: '💡', 'aria-hidden': 'true' }),
           U.el('div.moral-ta.tamil', { text: p.ta }),
           p.ro && S.settings.showRoman ? U.el('div.moral-ro', { text: p.ro }) : null,

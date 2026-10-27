@@ -151,6 +151,22 @@
       var stage = U.el('div.book-stage', { role: 'group', 'aria-label': b.en });
       host.appendChild(stage);
 
+      /* A page's picture is named by its number, so a book either has its art
+         or does not. One 404 for a book switches the rest of that book's pages
+         off — a shelf whose pictures never arrived should stop asking rather
+         than fire eighty-six failing requests every read-through. The Tamil
+         line is the page; the picture is along for the ride. */
+      var artDead = {};
+      function pageArt(p, cls) {
+        if (!p.art || artDead[b.id]) return null;
+        var im = U.el('img.' + cls, { src: p.art, alt: p.en || b.en, loading: 'lazy' });
+        im.addEventListener('error', function () {
+          artDead[b.id] = true;
+          if (im.parentNode) im.parentNode.removeChild(im);
+        });
+        return im;
+      }
+
       var prev = U.el('button.btn.btn-round', { type: 'button', text: '◀', 'aria-label': 'Previous page' });
       var replay = U.el('button.btn.btn-round', { type: 'button', text: '🔉', 'aria-label': 'Say it again' });
       var next = U.el('button.btn.btn-round.next', { type: 'button', text: '▶', 'aria-label': 'Next page' });
@@ -322,6 +338,7 @@
 
       function pageLine(p) {
         var box = U.el('div.book-line', {}, [
+          pageArt(p, 'line-art'),
           U.el('div.line-ta.tamil', { text: p.ta }),
           p.en ? U.el('div.line-en', { text: p.en }) : null
         ]);
@@ -334,6 +351,7 @@
         /* the last page of a story is the grown-up sentence the child is left
            with — set it apart from a story line so it reads as the takeaway */
         var box = U.el('div.book-moral', {}, [
+          pageArt(p, 'moral-art'),
           U.el('div.moral-mark', { text: '💡', 'aria-hidden': 'true' }),
           U.el('div.moral-ta.tamil', { text: p.ta }),
           p.ro && S.settings.showRoman ? U.el('div.moral-ro', { text: p.ro }) : null,

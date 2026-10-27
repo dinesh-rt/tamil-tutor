@@ -109,6 +109,41 @@ same class of silent failure as a missing voice pack.
 The shelf remembers where each book was left off, and a book pays out its star
 once: re-reading it counts, farming it does not.
 
+### Pictures on every page
+
+A story page is the spoken Tamil line first and a picture second — so the
+picture is *named*, never listed. Page *n* of a book asks for
+`images/books/p-<id>-<nn>.webp`, the same way page *n* asks for
+`audio/books/<id>/p<nn>.mp3`. Nothing in `js/data/stories.js` enumerates 83
+filenames, and `--promote-pages` can repaint a whole book without one line of
+data changing.
+
+```bash
+python3 tools/make-story-art.py --pages --only kakku-kudam   # render 9 frames
+python3 tools/make-story-art.py --promote-pages kakku-kudam  # flatten to p-<id>-<nn>.webp
+npm run check                                                # books: 83 pages, N illustrated
+```
+
+Three things keep ten books looking like one shelf rather than a ransom note:
+
+- **the cast is repeated verbatim** in every prompt of a book (`BOOK_CAST`), so
+  the crow on page 1 is the crow on page 8 — a two-year-old notices a character
+  that changes between pages even when a grown-up does not;
+- **one seed per book, not per page**, so the sampler starts from the same noise
+  and palette and lighting drift far less across nine frames;
+- **`flatten_image` runs after the sampler**, snapping to a 10-colour palette and
+  one solid paper colour. No prompt holds a diffusion model to one look across
+  83 pages, so the look is imposed afterwards — and `metrics()` measures the same
+  two numbers, so a bad batch can be rejected without a human eye on every frame.
+
+A page with no picture is still a finished page: it is narrated and readable, so
+a missing webp hides the `<img>` and moves on. One failing request for a book
+switches that book's remaining pages off, so a shelf whose art never arrived
+stops asking instead of firing 83 404s per read-through. `npm run site` prints
+`pages 61 of 83 story pages illustrated` as a report — unlike a missing *cover*,
+which fails the build, because an emoji shelf is not a book shelf but a story
+without a picture still is.
+
 ---
 
 ## Adding your own words

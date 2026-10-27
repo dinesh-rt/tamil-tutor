@@ -754,6 +754,16 @@ html[data-motion="reduced"] * { animation: none !important; transition-duration:
 /* a story page: one spoken line of Tamil, big enough to read with a lap-top */
 .book-line { display: flex; flex-direction: column; gap: 8px; max-width: 560px; cursor: pointer; padding: 12px; }
 
+/* the picture for this one line. Generated 4:3, capped so the Tamil under it
+   stays the biggest thing on the screen — a page with no art simply has no
+   img element at all (see the 404 latch in views/library.js) */
+.line-art { display: block; width: min(100%, 400px); aspect-ratio: 4 / 3; object-fit: cover;
+            margin: 0 auto 4px; border-radius: 20px; background: #fdf6ec;
+            box-shadow: 0 6px 18px rgba(80, 60, 20, .14); }
+.moral-art { display: block; width: min(72%, 300px); aspect-ratio: 4 / 3; object-fit: cover;
+             margin: 0 auto; border-radius: 20px; background: #fdf6ec;
+             box-shadow: 0 6px 18px rgba(80, 60, 20, .14); }
+
 /* the closing sentence of a story — set apart so it reads as the takeaway */
 .book-moral { display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 540px; cursor: pointer; padding: 16px 12px; }
 .moral-mark { font-size: 2.4rem; }

@@ -19,7 +19,9 @@ const FILES = [
   'js/data/home.js',
   'js/data/people.js',
   'js/data/mind.js',
-  'js/data/play.js'
+  'js/data/play.js',
+  'js/data/library.js',
+  'js/data/stories.js'
 ];
 
 /* minimal browser shims so the data files can run outside a page */
@@ -114,6 +116,40 @@ console.log(`pictures   : ${still} still, ${counts - still} animated (verbs and 
 console.log(`with a "say this" sentence: ${counts - noSentence} (${Math.round(((counts - noSentence) / counts) * 100)}%)`);
 console.log(`longest Tamil word: ${longest.ta} (${longest.en})`);
 console.log(`sprites    : ${SPRITES.length}`);
+
+/* ── story page art ─────────────────────────────────────────────────────────
+   A page's picture is named from its number (images/books/p-<id>-<nn>.webp)
+   and is never listed in the data, which is what keeps 83 pages out of
+   stories.js — and what makes a mistyped book id cost a whole book its
+   pictures without anything failing. So: ask for the name the app will ask
+   for, and count what is actually on disk. Missing art is a nudge, not a
+   failure — the Tamil line is the page and a page reads without a picture. */
+const B = sandbox.TT.books;
+const tales = B ? B.shelf().filter((b) => b.story) : [];
+if (!tales.length) {
+  console.log('page art   : no stories loaded — library.js or stories.js did not run in the sandbox');
+} else {
+  let artWant = 0, artHave = 0;
+  const artMissing = [];
+  tales.forEach((b) => {
+    b.pages.forEach((p, i) => {
+      if (!p.art) { warn(null, `${b.en}: page ${i + 1} has no art path`); return; }
+      artWant++;
+      if (fs.existsSync(path.join(ROOT, p.art))) artHave++;
+      else artMissing.push(`${b.id}/${p.art.split('/').pop()}`);
+    });
+  });
+  const coverMissing = tales.filter((b) => !fs.existsSync(path.join(ROOT, b.art)));
+  console.log(`books      : ${tales.length} stories, ${artWant} pages`
+    + `, ${artHave} illustrated (${artWant ? Math.round((artHave / artWant) * 100) : 0}%)`
+    + `, ${tales.length - coverMissing.length}/${tales.length} covers`);
+  if (artMissing.length) {
+    console.log(`  no picture yet: ${artMissing.slice(0, 8).join(', ')}`
+      + (artMissing.length > 8 ? ` … and ${artMissing.length - 8} more` : ''));
+    console.log('  draw them: python3 tools/make-story-art.py --pages --only <id> --promote-pages <id>');
+  }
+  coverMissing.forEach((b) => warn(null, `${b.en}: cover ${b.art} is missing`));
+}
 console.log('\nsample of every category:');
 cats.forEach((c) => {
   const s = c.words.slice(0, 3).map((w) => `${w.en}=${w.ta}`).join(', ');
