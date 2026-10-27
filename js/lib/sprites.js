@@ -56,6 +56,32 @@
       '<path d="M50 56c-3 4-3 9 0 13 3-4 3-9 0-13z" fill="#ef6c00"/>' +
       '<circle cx="34" cy="46" r="2.5" fill="#ef6c00"/><circle cx="66" cy="46" r="2.5" fill="#ef6c00"/>',
 
+    okra: '<path d="M50 92c-13-18-17-44-9-62 3-7 9-10 14-8 6 2 8 8 8 14 2 22-2 44-13 56z" fill="#8bc34a"/>' +
+      '<path d="M45 32c-3 20 0 40 7 58" stroke="#558b2f" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+      '<path d="M56 32c2 20 0 40-5 56" stroke="#558b2f" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+      '<path d="M50 22c-1-6 2-10 8-12" stroke="#33691e" stroke-width="5" fill="none" stroke-linecap="round"/>',
+
+    bottlegourd: '<circle cx="50" cy="30" r="13" fill="#aed581"/>' +
+      '<ellipse cx="50" cy="66" rx="27" ry="24" fill="#c5e1a5"/>' +
+      '<path d="M50 8c0 5 1 8 3 10" stroke="#5d4037" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+      '<path d="M44 20c0 6 12 6 12 0" stroke="#7cb342" stroke-width="4" fill="none"/>' +
+      '<circle cx="40" cy="60" r="3.5" fill="#aed581"/><circle cx="60" cy="72" r="3.5" fill="#aed581"/>',
+
+    seahorse: '<path d="M50 34c-6 10-10 16-10 26 0 12 8 18 16 22 6 3 12 1 14-4 2-6-2-11-7-11-4 0-7 3-7 7" fill="none" stroke="#ffa726" stroke-width="11" stroke-linecap="round"/>' +
+      '<circle cx="52" cy="26" r="13" fill="#ffb74d"/>' +
+      '<path d="M60 30l18 6" stroke="#ffa726" stroke-width="8" stroke-linecap="round"/>' +
+      '<circle cx="49" cy="23" r="3.5" fill="#37474f"/>' +
+      '<path d="M40 44l-7-3M40 56l-8-1M44 68l-8 1" stroke="#fb8c00" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M66 18c5-3 10 0 10 6" stroke="#ffcc80" stroke-width="4" fill="none" stroke-linecap="round"/>',
+
+    neck: '<path d="M22 92c0-14 12-20 28-20s28 6 28 20z" fill="#4db6ac"/>' +
+      '<rect x="41" y="50" width="18" height="26" rx="7" fill="#ffcc80"/>' +
+      '<circle cx="50" cy="36" r="21" fill="#ffcc80"/>' +
+      '<path d="M29 32c2-12 10-18 21-18s19 6 21 18c-5-6-11-9-21-9s-16 3-21 9z" fill="#424242"/>' +
+      '<circle cx="43" cy="36" r="3.5" fill="#37474f"/><circle cx="57" cy="36" r="3.5" fill="#37474f"/>' +
+      '<path d="M44 46c4 4 8 4 12 0" stroke="#bf360c" stroke-width="3.5" fill="none" stroke-linecap="round"/>' +
+      '<circle cx="50" cy="62" r="3" fill="#ffb74d"/>',
+
     /* fallback sticker for the sticker book */
     star: '<path d="M50 12l11 24 26 3-19 18 5 26-23-13-23 13 5-26-19-18 26-3z" fill="#fbc02d"/>'
   };
