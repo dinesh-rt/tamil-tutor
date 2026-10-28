@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated": "2026-10-23T15:11:04",
+ "generated": "2026-10-28T10:50:04",
  "voice": "ta-IN-PallaviNeural",
  "rate": "-15%",
  "books": {
@@ -10,58 +10,58 @@
    "complete": true,
    "pages": [
     {
-     "file": "p01-1c49.mp3",
+     "file": "p01-10e5.mp3",
      "k": "line",
-     "dur": 5.26,
-     "chars": 45
+     "dur": 4.94,
+     "chars": 46
     },
     {
-     "file": "p02-ee6f.mp3",
+     "file": "p02-cb0b.mp3",
      "k": "line",
-     "dur": 5.26,
-     "chars": 50
+     "dur": 5.86,
+     "chars": 59
     },
     {
-     "file": "p03-26e8.mp3",
+     "file": "p03-3d02.mp3",
      "k": "line",
-     "dur": 5.81,
-     "chars": 52
+     "dur": 6.41,
+     "chars": 55
     },
     {
-     "file": "p04-110d.mp3",
+     "file": "p04-71e8.mp3",
      "k": "line",
-     "dur": 7.13,
-     "chars": 54
+     "dur": 8.3,
+     "chars": 57
     },
     {
-     "file": "p05-8f75.mp3",
+     "file": "p05-866a.mp3",
      "k": "line",
-     "dur": 4.66,
-     "chars": 37
+     "dur": 4.03,
+     "chars": 31
     },
     {
-     "file": "p06-6fcc.mp3",
+     "file": "p06-513b.mp3",
      "k": "line",
-     "dur": 7.61,
-     "chars": 62
+     "dur": 7.58,
+     "chars": 60
     },
     {
-     "file": "p07-d1e2.mp3",
+     "file": "p07-33a2.mp3",
      "k": "line",
-     "dur": 6.86,
-     "chars": 58
+     "dur": 6.79,
+     "chars": 56
     },
     {
-     "file": "p08-7ce3.mp3",
+     "file": "p08-ba64.mp3",
      "k": "line",
-     "dur": 5.54,
-     "chars": 44
+     "dur": 5.64,
+     "chars": 49
     },
     {
-     "file": "p-moral-f890.mp3",
+     "file": "p-moral-3dfb.mp3",
      "k": "moral",
-     "dur": 2.81,
-     "chars": 33
+     "dur": 3.05,
+     "chars": 28
     }
    ]
   },
@@ -71,119 +71,119 @@
    "complete": true,
    "pages": [
     {
-     "file": "p01-3414.mp3",
+     "file": "p01-4750.mp3",
      "k": "line",
-     "dur": 5.11,
+     "dur": 5.52,
+     "chars": 44
+    },
+    {
+     "file": "p02-5606.mp3",
+     "k": "line",
+     "dur": 5.35,
+     "chars": 46
+    },
+    {
+     "file": "p03-614a.mp3",
+     "k": "line",
+     "dur": 4.08,
+     "chars": 49
+    },
+    {
+     "file": "p04-9bdb.mp3",
+     "k": "line",
+     "dur": 7.22,
+     "chars": 70
+    },
+    {
+     "file": "p05-4dd2.mp3",
+     "k": "line",
+     "dur": 4.94,
      "chars": 45
     },
     {
-     "file": "p02-86b2.mp3",
+     "file": "p06-a71b.mp3",
      "k": "line",
-     "dur": 5.86,
-     "chars": 53
+     "dur": 6.91,
+     "chars": 57
     },
     {
-     "file": "p03-a69d.mp3",
+     "file": "p07-c09f.mp3",
      "k": "line",
-     "dur": 3.84,
-     "chars": 41
+     "dur": 6.53,
+     "chars": 63
     },
     {
-     "file": "p04-3848.mp3",
-     "k": "line",
-     "dur": 6.89,
-     "chars": 77
-    },
-    {
-     "file": "p05-89a8.mp3",
-     "k": "line",
-     "dur": 4.68,
-     "chars": 39
-    },
-    {
-     "file": "p06-8e4f.mp3",
-     "k": "line",
-     "dur": 6.6,
-     "chars": 55
-    },
-    {
-     "file": "p07-cf8f.mp3",
-     "k": "line",
-     "dur": 7.73,
-     "chars": 74
-    },
-    {
-     "file": "p08-212c.mp3",
+     "file": "p08-84b4.mp3",
      "k": "line",
      "dur": 10.39,
-     "chars": 108
+     "chars": 102
     },
     {
-     "file": "p-moral-eceb.mp3",
+     "file": "p-moral-3336.mp3",
      "k": "moral",
-     "dur": 3.43,
-     "chars": 37
+     "dur": 3.38,
+     "chars": 34
     }
    ]
   },
   "vanaram-mudalai": {
-   "title": "வானரமும் முதலையையும்",
+   "title": "வானரமும் முதலையும்",
    "en": "The Monkey and the Crocodile",
    "complete": true,
    "pages": [
     {
-     "file": "p01-ddee.mp3",
+     "file": "p01-84b5.mp3",
      "k": "line",
-     "dur": 5.78,
-     "chars": 51
+     "dur": 5.47,
+     "chars": 40
     },
     {
-     "file": "p02-3684.mp3",
-     "k": "line",
-     "dur": 6.29,
-     "chars": 62
-    },
-    {
-     "file": "p03-b1b2.mp3",
-     "k": "line",
-     "dur": 7.61,
-     "chars": 74
-    },
-    {
-     "file": "p04-991f.mp3",
-     "k": "line",
-     "dur": 5.42,
-     "chars": 59
-    },
-    {
-     "file": "p05-ed05.mp3",
-     "k": "line",
-     "dur": 5.16,
-     "chars": 48
-    },
-    {
-     "file": "p06-771a.mp3",
-     "k": "line",
-     "dur": 5.9,
-     "chars": 60
-    },
-    {
-     "file": "p07-d03f.mp3",
+     "file": "p02-59a4.mp3",
      "k": "line",
      "dur": 6.55,
-     "chars": 65
+     "chars": 61
     },
     {
-     "file": "p08-19a3.mp3",
+     "file": "p03-0d06.mp3",
      "k": "line",
-     "dur": 10.39,
-     "chars": 78
+     "dur": 7.56,
+     "chars": 71
     },
     {
-     "file": "p-moral-0144.mp3",
+     "file": "p04-621f.mp3",
+     "k": "line",
+     "dur": 4.97,
+     "chars": 49
+    },
+    {
+     "file": "p05-a6a0.mp3",
+     "k": "line",
+     "dur": 6.79,
+     "chars": 52
+    },
+    {
+     "file": "p06-50e9.mp3",
+     "k": "line",
+     "dur": 5.69,
+     "chars": 56
+    },
+    {
+     "file": "p07-803c.mp3",
+     "k": "line",
+     "dur": 6.96,
+     "chars": 66
+    },
+    {
+     "file": "p08-8323.mp3",
+     "k": "line",
+     "dur": 10.2,
+     "chars": 79
+    },
+    {
+     "file": "p-moral-53cd.mp3",
      "k": "moral",
-     "dur": 3.0,
-     "chars": 27
+     "dur": 3.07,
+     "chars": 25
     }
    ]
   },
@@ -193,52 +193,52 @@
    "complete": true,
    "pages": [
     {
-     "file": "p01-8877.mp3",
+     "file": "p01-a4fa.mp3",
      "k": "line",
-     "dur": 6.07,
+     "dur": 6.17,
      "chars": 62
     },
     {
-     "file": "p02-2de9.mp3",
+     "file": "p02-d335.mp3",
      "k": "line",
-     "dur": 5.5,
-     "chars": 56
+     "dur": 6.98,
+     "chars": 80
     },
     {
-     "file": "p03-817e.mp3",
+     "file": "p03-c018.mp3",
      "k": "line",
-     "dur": 6.0,
-     "chars": 59
-    },
-    {
-     "file": "p04-33c5.mp3",
-     "k": "line",
-     "dur": 8.5,
-     "chars": 76
-    },
-    {
-     "file": "p05-f596.mp3",
-     "k": "line",
-     "dur": 7.13,
-     "chars": 67
-    },
-    {
-     "file": "p06-2b6b.mp3",
-     "k": "line",
-     "dur": 8.09,
-     "chars": 79
-    },
-    {
-     "file": "p07-cad4.mp3",
-     "k": "line",
-     "dur": 6.84,
+     "dur": 6.98,
      "chars": 69
     },
     {
-     "file": "p-moral-967e.mp3",
+     "file": "p04-1cf9.mp3",
+     "k": "line",
+     "dur": 9.19,
+     "chars": 89
+    },
+    {
+     "file": "p05-a7a3.mp3",
+     "k": "line",
+     "dur": 7.46,
+     "chars": 69
+    },
+    {
+     "file": "p06-0dee.mp3",
+     "k": "line",
+     "dur": 7.06,
+     "chars": 66
+    },
+    {
+     "file": "p07-dbc8.mp3",
+     "k": "line",
+     "dur": 7.01,
+     "chars": 74
+    },
+    {
+     "file": "p-moral-4cf2.mp3",
      "k": "moral",
-     "dur": 3.48,
-     "chars": 39
+     "dur": 3.1,
+     "chars": 35
     }
    ]
   },
@@ -248,52 +248,52 @@
    "complete": true,
    "pages": [
     {
-     "file": "p01-d5af.mp3",
+     "file": "p01-4049.mp3",
      "k": "line",
-     "dur": 7.9,
-     "chars": 80
+     "dur": 8.42,
+     "chars": 84
     },
     {
-     "file": "p02-5944.mp3",
+     "file": "p02-cdbc.mp3",
      "k": "line",
-     "dur": 5.81,
-     "chars": 52
+     "dur": 5.45,
+     "chars": 43
     },
     {
-     "file": "p03-a267.mp3",
+     "file": "p03-e31c.mp3",
      "k": "line",
-     "dur": 6.14,
-     "chars": 64
+     "dur": 5.9,
+     "chars": 61
     },
     {
-     "file": "p04-555e.mp3",
+     "file": "p04-b01a.mp3",
      "k": "line",
-     "dur": 7.56,
+     "dur": 7.94,
      "chars": 70
     },
     {
-     "file": "p05-8d97.mp3",
-     "k": "line",
-     "dur": 7.39,
-     "chars": 55
-    },
-    {
-     "file": "p06-6faf.mp3",
-     "k": "line",
-     "dur": 6.29,
-     "chars": 66
-    },
-    {
-     "file": "p07-b0d8.mp3",
+     "file": "p05-a894.mp3",
      "k": "line",
      "dur": 7.44,
-     "chars": 45
+     "chars": 69
     },
     {
-     "file": "p-moral-7f30.mp3",
+     "file": "p06-eeab.mp3",
+     "k": "line",
+     "dur": 5.83,
+     "chars": 60
+    },
+    {
+     "file": "p07-d793.mp3",
+     "k": "line",
+     "dur": 6.96,
+     "chars": 51
+    },
+    {
+     "file": "p-moral-cbe7.mp3",
      "k": "moral",
-     "dur": 2.26,
-     "chars": 24
+     "dur": 2.45,
+     "chars": 27
     }
    ]
   },
@@ -303,52 +303,52 @@
    "complete": true,
    "pages": [
     {
-     "file": "p01-46de.mp3",
+     "file": "p01-d4e0.mp3",
      "k": "line",
-     "dur": 6.48,
+     "dur": 6.58,
      "chars": 58
     },
     {
-     "file": "p02-6217.mp3",
+     "file": "p02-455e.mp3",
      "k": "line",
-     "dur": 4.85,
-     "chars": 52
+     "dur": 6.22,
+     "chars": 67
     },
     {
-     "file": "p03-d6aa.mp3",
+     "file": "p03-fe90.mp3",
      "k": "line",
-     "dur": 7.92,
-     "chars": 83
+     "dur": 8.23,
+     "chars": 89
     },
     {
-     "file": "p04-467a.mp3",
+     "file": "p04-cca1.mp3",
      "k": "line",
-     "dur": 7.32,
-     "chars": 62
+     "dur": 8.47,
+     "chars": 76
     },
     {
-     "file": "p05-436b.mp3",
+     "file": "p05-9533.mp3",
      "k": "line",
-     "dur": 7.32,
-     "chars": 60
+     "dur": 7.73,
+     "chars": 65
     },
     {
-     "file": "p06-9267.mp3",
+     "file": "p06-c4f8.mp3",
      "k": "line",
      "dur": 4.82,
-     "chars": 42
+     "chars": 46
     },
     {
-     "file": "p07-1b5e.mp3",
+     "file": "p07-c448.mp3",
      "k": "line",
-     "dur": 7.92,
+     "dur": 7.66,
      "chars": 80
     },
     {
-     "file": "p-moral-12ea.mp3",
+     "file": "p-moral-4e16.mp3",
      "k": "moral",
-     "dur": 3.22,
-     "chars": 32
+     "dur": 2.93,
+     "chars": 30
     }
    ]
   },
@@ -358,46 +358,46 @@
    "complete": true,
    "pages": [
     {
-     "file": "p01-f737.mp3",
+     "file": "p01-1222.mp3",
      "k": "line",
-     "dur": 6.36,
+     "dur": 6.62,
+     "chars": 70
+    },
+    {
+     "file": "p02-1d81.mp3",
+     "k": "line",
+     "dur": 6.53,
+     "chars": 52
+    },
+    {
+     "file": "p03-6071.mp3",
+     "k": "line",
+     "dur": 8.14,
+     "chars": 70
+    },
+    {
+     "file": "p04-fd18.mp3",
+     "k": "line",
+     "dur": 8.02,
+     "chars": 66
+    },
+    {
+     "file": "p05-b4e5.mp3",
+     "k": "line",
+     "dur": 8.57,
+     "chars": 79
+    },
+    {
+     "file": "p06-074b.mp3",
+     "k": "line",
+     "dur": 7.39,
      "chars": 68
     },
     {
-     "file": "p02-31c8.mp3",
-     "k": "line",
-     "dur": 7.63,
-     "chars": 64
-    },
-    {
-     "file": "p03-5329.mp3",
-     "k": "line",
-     "dur": 8.04,
-     "chars": 71
-    },
-    {
-     "file": "p04-2de3.mp3",
-     "k": "line",
-     "dur": 7.63,
-     "chars": 58
-    },
-    {
-     "file": "p05-dd64.mp3",
-     "k": "line",
-     "dur": 8.38,
-     "chars": 76
-    },
-    {
-     "file": "p06-4ab7.mp3",
-     "k": "line",
-     "dur": 7.13,
-     "chars": 65
-    },
-    {
-     "file": "p-moral-e4b1.mp3",
+     "file": "p-moral-8ec9.mp3",
      "k": "moral",
-     "dur": 3.89,
-     "chars": 46
+     "dur": 3.55,
+     "chars": 38
     }
    ]
   },
@@ -407,34 +407,34 @@
    "complete": true,
    "pages": [
     {
-     "file": "p01-6b77.mp3",
+     "file": "p01-1fd9.mp3",
      "k": "line",
-     "dur": 9.77,
+     "dur": 9.82,
      "chars": 86
     },
     {
-     "file": "p02-a2ab.mp3",
+     "file": "p02-4285.mp3",
      "k": "line",
-     "dur": 4.82,
-     "chars": 45
-    },
-    {
-     "file": "p03-bc8f.mp3",
-     "k": "line",
-     "dur": 10.51,
-     "chars": 78
-    },
-    {
-     "file": "p04-e90d.mp3",
-     "k": "line",
-     "dur": 4.39,
+     "dur": 5.09,
      "chars": 48
     },
     {
-     "file": "p05-2690.mp3",
+     "file": "p03-942d.mp3",
      "k": "line",
-     "dur": 13.58,
-     "chars": 110
+     "dur": 9.48,
+     "chars": 67
+    },
+    {
+     "file": "p04-19ee.mp3",
+     "k": "line",
+     "dur": 4.08,
+     "chars": 45
+    },
+    {
+     "file": "p05-969d.mp3",
+     "k": "line",
+     "dur": 13.54,
+     "chars": 109
     },
     {
      "file": "p06-c386.mp3",
@@ -443,10 +443,10 @@
      "chars": 65
     },
     {
-     "file": "p07-3b3b.mp3",
+     "file": "p07-420f.mp3",
      "k": "line",
-     "dur": 6.65,
-     "chars": 59
+     "dur": 5.98,
+     "chars": 67
     },
     {
      "file": "p-moral-1ac3.mp3",
@@ -462,46 +462,46 @@
    "complete": true,
    "pages": [
     {
-     "file": "p01-9418.mp3",
+     "file": "p01-9210.mp3",
      "k": "line",
-     "dur": 8.11,
+     "dur": 8.18,
      "chars": 70
     },
     {
-     "file": "p02-1ae0.mp3",
+     "file": "p02-a2fe.mp3",
      "k": "line",
-     "dur": 7.08,
+     "dur": 6.26,
+     "chars": 60
+    },
+    {
+     "file": "p03-8e6f.mp3",
+     "k": "line",
+     "dur": 5.35,
      "chars": 53
     },
     {
-     "file": "p03-9240.mp3",
+     "file": "p04-1dae.mp3",
      "k": "line",
-     "dur": 5.3,
-     "chars": 52
+     "dur": 8.11,
+     "chars": 80
     },
     {
-     "file": "p04-a683.mp3",
+     "file": "p05-266e.mp3",
      "k": "line",
-     "dur": 7.51,
-     "chars": 73
+     "dur": 5.28,
+     "chars": 54
     },
     {
-     "file": "p05-bd74.mp3",
+     "file": "p06-0f17.mp3",
      "k": "line",
-     "dur": 5.54,
-     "chars": 55
+     "dur": 5.88,
+     "chars": 60
     },
     {
-     "file": "p06-709f.mp3",
+     "file": "p07-4f3c.mp3",
      "k": "line",
-     "dur": 6.46,
-     "chars": 64
-    },
-    {
-     "file": "p07-fb18.mp3",
-     "k": "line",
-     "dur": 6.86,
-     "chars": 69
+     "dur": 7.37,
+     "chars": 74
     },
     {
      "file": "p-moral-2276.mp3",
@@ -517,57 +517,57 @@
    "complete": true,
    "pages": [
     {
-     "file": "p01-8338.mp3",
-     "k": "line",
-     "dur": 7.22,
-     "chars": 50
-    },
-    {
-     "file": "p02-9dd8.mp3",
-     "k": "line",
-     "dur": 6.48,
-     "chars": 62
-    },
-    {
-     "file": "p03-ae3b.mp3",
-     "k": "line",
-     "dur": 6.46,
-     "chars": 63
-    },
-    {
-     "file": "p04-9dfe.mp3",
-     "k": "line",
-     "dur": 6.6,
-     "chars": 65
-    },
-    {
-     "file": "p05-9d6a.mp3",
-     "k": "line",
-     "dur": 7.3,
-     "chars": 70
-    },
-    {
-     "file": "p06-0326.mp3",
+     "file": "p01-cd8f.mp3",
      "k": "line",
      "dur": 8.35,
      "chars": 53
     },
     {
-     "file": "p07-31fa.mp3",
+     "file": "p02-587c.mp3",
      "k": "line",
-     "dur": 6.72,
+     "dur": 6.84,
+     "chars": 62
+    },
+    {
+     "file": "p03-36e7.mp3",
+     "k": "line",
+     "dur": 6.74,
+     "chars": 68
+    },
+    {
+     "file": "p04-e94e.mp3",
+     "k": "line",
+     "dur": 6.43,
+     "chars": 67
+    },
+    {
+     "file": "p05-5403.mp3",
+     "k": "line",
+     "dur": 7.01,
+     "chars": 68
+    },
+    {
+     "file": "p06-87c9.mp3",
+     "k": "line",
+     "dur": 8.5,
+     "chars": 57
+    },
+    {
+     "file": "p07-54c7.mp3",
+     "k": "line",
+     "dur": 6.96,
      "chars": 66
     },
     {
-     "file": "p08-c448.mp3",
+     "file": "p08-80b8.mp3",
      "k": "line",
-     "dur": 7.85,
-     "chars": 79
+     "dur": 7.82,
+     "chars": 86
     },
     {
-     "file": "p-moral-45d6.mp3",
+     "file": "p-moral-6679.mp3",
      "k": "moral",
-     "dur": 3.05,
+     "dur": 3.14,
      "chars": 35
     }
    ]

@@ -193,6 +193,42 @@ def total_size():
     return sum(os.path.getsize(os.path.join(d, f)) for d, _, fs in os.walk(BOOKS) for f in fs)
 
 
+def prune(stories, man):
+    """Delete clips the manifest does not name.
+
+    Re-narrating an edited page produces a new filename by design — the worker
+    caches /audio/ forever by URL, so an edited line has to change its name or
+    every installed phone keeps the old voice for the rest of time. That is
+    correct for the cache and messy for the disk: the previous generation of
+    clips just sits there, and build-site.py copies whatever is in the folder,
+    so a re-narrated book ships two readings of every page and the service
+    worker precaches both.
+
+    Only a clip-shaped filename goes, only inside a book's own folder, and only
+    when the manifest is not asking for it. The manifest always carries a row
+    for every page even when the clip is missing, so "not named" genuinely means
+    "nothing on this shelf refers to it".
+    """
+    want = {b: {r["file"] for r in man["books"].get(b, {}).get("pages", [])}
+            for b in man.get("books", {})}
+    gone = kept = bytes_gone = 0
+    for bid in os.listdir(BOOKS):
+        d = os.path.join(BOOKS, bid)
+        if not os.path.isdir(d):
+            continue
+        for f in sorted(os.listdir(d)):
+            if not re.match(r"^p(-moral|\d\d)-[0-9a-f]{4}\.mp3$", f):
+                continue
+            p = os.path.join(d, f)
+            if f in want.get(bid, set()):
+                kept += 1
+                continue
+            bytes_gone += os.path.getsize(p)
+            os.remove(p)
+            gone += 1
+    return gone, kept, bytes_gone
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", help="one story id")
@@ -201,6 +237,9 @@ def main():
     ap.add_argument("--jobs", type=int, default=6)
     ap.add_argument("--force", action="store_true", help="re-narrate even if the clip exists")
     ap.add_argument("--manifest-only", action="store_true", help="no network: re-measure and rewrite the manifest")
+    ap.add_argument("--prune", action="store_true",
+                    help="after indexing, delete clip files the manifest does not name "
+                         "(the old generation left behind by re-narrating an edited line)")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
 
@@ -241,6 +280,13 @@ def main():
               % (len(missing), missing[0]))
     else:
         print("\n✅ every page narrated — the ten stories appear on the shelf at #/library")
+
+    if a.prune:
+        gone, kept, bytes_gone = prune(stories, man)
+        print("\nprune       %d clips kept, %d old clips deleted (%s reclaimed)"
+              % (kept, gone, human(bytes_gone)))
+        if gone == 0:
+            print("            nothing to reclaim — every clip on disk is the current reading")
 
 
 if __name__ == "__main__":
