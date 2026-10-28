@@ -218,7 +218,19 @@
       }
 
       function speakLine(p) {
-        A.playClip(p.clip, { dur: p.dur, onend: function () { if (auto) later(); } });
+        /* A page's clip is named by its number until audio/books/manifest.json
+           says which hashed file the text became. Opening a book narrates page
+           one straight away, which is precisely the race — and losing it is
+           silent: playClip 404s and the fallback hands the line to the phone's
+           own voice, so the book sounds fine and is not the book anyone
+           recorded. Wait once for the index (a few ms of a local file), then
+           read p.clip fresh. */
+        var go = function () {
+          if (pages[idx] !== p) return;   // the child already turned the page
+          A.playClip(p.clip, { dur: p.dur, onend: function () { if (auto) later(); } });
+        };
+        if (b.story && !B.packLoaded()) { B.storiesReady().then(go); return; }
+        go();
       }
 
       /* ---- pages */

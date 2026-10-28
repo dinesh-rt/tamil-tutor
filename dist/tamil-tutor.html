@@ -2406,6 +2406,11 @@ html[data-motion="reduced"] .pic { animation: none !important; }
 
   var books = [], byId = {};
   var storyPack = null;
+  /* The index arrives asynchronously. Anything that needs a clip *filename*
+     has to wait for it: pages carry their un-hashed name until then, and the
+     hashed file is the only one that exists on disk. Callers ask via
+     storiesReady() rather than hoping the fetch won. */
+  var packSettled = null;
 
   /* A story is only shippable once it can be heard. The word-books narrate
      themselves from the existing pack, but a story page is one spoken line and
@@ -2413,39 +2418,57 @@ html[data-motion="reduced"] .pic { animation: none !important; }
      has not been generated yet is not a book, it is a silent screen a
      two-year-old taps at. Stories stay off the shelf until
      audio/books/manifest.json says their clips exist. */
+  /* Give one story book its real clip names and durations from the index.
+
+     This has to be callable from two directions, and only one of them was
+     wired. The index arrives asynchronously, and in a bundle where
+     window.TT_STORY_PACK is injected it arrives in a microtask — before
+     js/data/stories.js has registered a single book. So this loop used to run
+     over an empty array, and book() below still set ready from a weaker check
+     that only asks whether the book has a row. Result: every story looked
+     shelf-ready, opened, and narrated itself with the phone's voice, because
+     the page was still carrying its placeholder name (p01.mp3) instead of the
+     hashed file the pack actually wrote (p01-4750.mp3). Nothing warned: a
+     404 on a clip falls back to speechSynthesis, which sounds like a book.
+  */
+  function mapBook(b) {
+    var rec = storyPack && storyPack[b.id];
+    if (!rec) { b.ready = false; return; }
+    /* complete, not merely present: a half-narrated book would open on
+       page 3 with nothing to hear */
+    b.ready = !!(rec.complete && rec.pages && rec.pages.length === b.pages.length);
+    if (!b.ready || !rec.pages) return;
+    rec.pages.forEach(function (m, i) {
+      if (!m) return;
+      b.pages[i].dur = m.dur || 0;
+      /* the pack names clips after the text that made them, so an edited
+         line gets a new filename and the worker cannot serve the old one */
+      if (m.file) b.pages[i].clip = 'audio/books/' + b.id + '/' + m.file;
+    });
+    b._pages = null;   // pagesOf() may be cached from before the durations arrived
+  }
+
   function loadStoryPack() {
+    if (packSettled) return packSettled;
     /* Under file:// a fetch either fails outright or is refused, and a story
        with no way to be heard is simply not offered — so don't ask. A portable
        bundle can hand the index over directly as window.TT_STORY_PACK. */
     var injected = typeof window !== 'undefined' && window.TT_STORY_PACK;
     if (!injected) {
-      if (typeof fetch !== 'function') return;
-      if (typeof location !== 'undefined' && location.protocol === 'file:') return;
+      if (typeof fetch !== 'function') { packSettled = Promise.resolve(); return packSettled; }
+      if (typeof location !== 'undefined' && location.protocol === 'file:') {
+        packSettled = Promise.resolve(); return packSettled;
+      }
     }
     var asking = injected
       ? Promise.resolve({ ok: true, json: function () { return Promise.resolve(window.TT_STORY_PACK); } })
       : fetch('audio/books/manifest.json', { cache: 'no-cache' });
-    asking
+    packSettled = asking
       .then(function (r) { return r && r.ok ? r.json() : null; })
       .then(function (j) {
         if (!j) return;
         storyPack = (j && j.books) || j || {};
-        books.forEach(function (b) {
-          if (!b.story) return;
-          var rec = storyPack[b.id];
-          /* complete, not merely present: a half-narrated book would open on
-             page 3 with nothing to hear */
-          b.ready = !!(rec && rec.complete && rec.pages && rec.pages.length === b.pages.length);
-          if (!b.ready || !rec.pages) return;
-          rec.pages.forEach(function (m, i) {
-            if (!m) return;
-            b.pages[i].dur = m.dur || 0;
-            /* the pack names clips after the text that made them, so an edited
-               line gets a new filename and the worker cannot serve the old one */
-            if (m.file) b.pages[i].clip = 'audio/books/' + b.id + '/' + m.file;
-          });
-          b._pages = null;   // pagesOf() may be cached from before the durations arrived
-        });
+        books.forEach(function (b) { if (b.story) mapBook(b); });
         /* the shelf is often already painted by the time this answer lands —
            without this the Books tab shows ten books or twenty depending on
            whether a fetch won the race, which is the kind of bug a toddler
@@ -2455,6 +2478,7 @@ html[data-motion="reduced"] .pic { animation: none !important; }
         }
       })
       .catch(function () { /* no pack: the shelf simply has no stories */ });
+    return packSettled;
   }
 
   function exists(ref) { return !!ref && !!D.getWord(ref); }
@@ -2477,7 +2501,11 @@ html[data-motion="reduced"] .pic { animation: none !important; }
       return exists(p.w);
     });
     if (!def.pages.length) return;
-    if (def.story) def.ready = !!(storyPack && storyPack[def.id]);
+    /* not a weaker test than mapBook's — the same one, run whenever this book
+       happens to arrive. A book with a row but a page-count mismatch is not
+       ready, and a book registered after the index landed still needs its
+       hashed clip names. */
+    if (def.story) { if (storyPack) mapBook(def); else def.ready = false; }
     /* the single-file bundle is one file with nothing beside it, so a cover it
        cannot have is not worth a request; the emoji was the cover first, and a
        story page without its picture is still a page — the Tamil line is the page */
@@ -2652,6 +2680,11 @@ html[data-motion="reduced"] .pic { animation: none !important; }
     book: book,
     all: all,
     shelf: shelf,
+    /* resolved once audio/books/manifest.json has been read, or has failed to
+       be there at all — a reader that starts narration before this gets the
+       page's placeholder clip name and hears the phone, not the pack */
+    storiesReady: function () { return packSettled || Promise.resolve(); },
+    packLoaded: function () { return !!storyPack; },
     get: get,
     word: word,
     pagesOf: pagesOf,
@@ -5299,7 +5332,19 @@ html[data-motion="reduced"] .pic { animation: none !important; }
       }
 
       function speakLine(p) {
-        A.playClip(p.clip, { dur: p.dur, onend: function () { if (auto) later(); } });
+        /* A page's clip is named by its number until audio/books/manifest.json
+           says which hashed file the text became. Opening a book narrates page
+           one straight away, which is precisely the race — and losing it is
+           silent: playClip 404s and the fallback hands the line to the phone's
+           own voice, so the book sounds fine and is not the book anyone
+           recorded. Wait once for the index (a few ms of a local file), then
+           read p.clip fresh. */
+        var go = function () {
+          if (pages[idx] !== p) return;   // the child already turned the page
+          A.playClip(p.clip, { dur: p.dur, onend: function () { if (auto) later(); } });
+        };
+        if (b.story && !B.packLoaded()) { B.storiesReady().then(go); return; }
+        go();
       }
 
       /* ---- pages */
