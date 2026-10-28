@@ -51,7 +51,12 @@ const SPRITES = sandbox.TT.spriteKeys || [];
 
 const TAMIL = /[\u0B80-\u0BFF]/;
 const EMOJI = /^[\u{1F000}-\u{1FAFF}\u{2300}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}\u{1F1E6}-\u{1F1FF}0-9#*]+$/u;
-const LATIN_ONLY_SOUND = /^[a-z0-9 .'\-()]+$/;
+/* "plain ascii" means no diacritics and no Tamil script — that is the whole
+   point, because a word bank where half the entries are scholarly-romanised
+   and half phonetic is a word bank nobody can read aloud. Sentence punctuation
+   is allowed because story pages are whole spoken lines with a ! and a ? in
+   them, which single-word entries never had. */
+const LATIN_ONLY_SOUND = /^[a-z0-9 .'"\-()!?;:,]+$/;
 
 /* `mo` is now opt-in: a word without one is a still picture. Anything that
    does ask for movement must name a class that actually exists. */
@@ -149,6 +154,57 @@ if (!tales.length) {
     console.log('  draw them: python3 tools/make-story-art.py --pages --only <id> --promote-pages <id>');
   }
   coverMissing.forEach((b) => warn(null, `${b.en}: cover ${b.art} is missing`));
+}
+
+/* ── story register and provenance ──────────────────────────────────────────
+   The word bank went spoken Tamil in one long pass and this file stayed in
+   written Tamil for months right next to it, because nothing ever looked.
+   A reader could see both halves on the same shelf and one of them was still
+   saying அதின் and நில். These are the shapes the written register leaves
+   behind — a story page that grows one is a regression, not a house style.
+   The list is deliberately small and specific: it names the spoken form to use
+   so the message is fixable in place, and it stays narrow enough that a writer
+   can hold it in their head. `tools/fetch-story-sources.py` pulls the archived
+   parent texts, which are book Tamil on purpose — the plot comes from there,
+   the register never does. */
+const WRITTEN_FORMS = [
+  [/அதின்/, 'written genitive அதின் → spoken அதன் / இத'],
+  [/(?:கிறேன்|கிறோம்|கிறான்|கிறாள்|கிறோம்|கிறீர்கள்|கிறார்கள்|கிறது)/, 'written present -கிற → spoken -க்குது / -கிட்டு'],
+  [/\bநில்\b/, 'written imperative நில் → spoken நில்லு'],
+  [/வேண்டும்/, 'written வேண்டும் → spoken வேணும்'],
+  [/மிகவும்/, 'written மிகவும் → spoken ரொம்ப / ஒண்ணே'],
+  [/\bசிறு\b/, 'written சிறு → spoken சின்ன'],
+  [/உட்கார்ந்த/, 'written உட்கார்ந்தது → spoken உக்காந்துச்சு'],
+  [/\bஎன்று\b/, 'written என்று → spoken னு'],
+  [/அருகே/, 'written அருகே → spoken அருகில'],
+  [/(?:விட்டது|விட்டேன்|விட்டான்|விட்டாள்)/, 'written -விட்டது → spoken -டுச்சு / -ப் போச்சு'],
+  [/[a-zA-Z]/, 'English letters inside a Tamil line — nobody speaks that'],
+];
+
+if (tales.length) {
+  let spoken = 0;
+  tales.forEach((b) => {
+    /* provenance is a promise the data has to keep: a tale with no `source`
+       is indistinguishable from one a model invented, which is exactly the
+       state this file used to be in */
+    if (!b.source) warn(null, `${b.en}: no \`source\` — say where this tale comes from, or that it does not come from anywhere`);
+    b.pages.forEach((p, i) => {
+      const at = `${b.id} p${i + 1}`;
+      if (!p.ta) warn(null, `${at}: empty line`);
+      else if (!TAMIL.test(p.ta)) warn(null, `${at}: no Tamil in a Tamil line`);
+      if (!p.ro) warn(null, `${at}: missing romanisation`);
+      else if (!LATIN_ONLY_SOUND.test(p.ro.toLowerCase())) warn(null, `${at}: romanisation should be plain ascii (${p.ro})`);
+      if (!p.en) warn(null, `${at}: missing English gloss`);
+      WRITTEN_FORMS.forEach(([re, why]) => {
+        if (p.ta && re.test(p.ta)) warn(null, `${at}: ${why} — (${p.ta})`);
+      });
+    });
+    spoken++;
+  });
+  const sourced = tales.filter((b) => /ta\.wikisource|வாயடக்கம்|Pancha|Aesop/.test(b.source || '')).length;
+  const archived = tales.filter((b) => /ta\.wikisource/.test(b.source || '')).length;
+  console.log(`stories    : ${spoken} books, ${sourced} with a stated source, ${archived} with an archived Tamil parent`);
+  console.log('           : register lint on ' + WRITTEN_FORMS.length + ' written forms (tools/check-data.js)');
 }
 console.log('\nsample of every category:');
 cats.forEach((c) => {

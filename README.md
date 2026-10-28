@@ -109,6 +109,69 @@ same class of silent failure as a missing voice pack.
 The shelf remembers where each book was left off, and a book pays out its star
 once: re-reading it counts, farming it does not.
 
+### Where each story comes from
+
+Ten stories, and every one of them now says where it came from. That was not
+true before: the plots are old but the sentences in this file were written by a
+model, with nothing naming a parent text and nothing saying so.
+
+```bash
+python3 tools/fetch-story-sources.py --list   # the whole book → archived-tale map
+python3 tools/fetch-story-sources.py          # pull them into sources/stories/
+```
+
+The parents are the proofread collections on ta.wikisource — `பஞ்ச தந்திரக்
+கதைகள்` (57 tales), `அறிவுக் கதைகள்` (100) and `சிறுவர் சிறுமியருக்கு நீதிக்
+கதைகள்` (50). Proofread means a human read them against a scanned book page by
+page, which is the only reason they are worth copying a sentence from; the
+Tamil on archive.org is OCR of 19th-century type, and Gutenberg's Tamil Tales
+are English translations. Both are recorded as references in the tool and
+neither gets quoted.
+
+Honest tally, because the interesting finding is what is *not* there:
+
+| | books |
+|---|---|
+| true archived twin found | `aamai-annangal`, `vanaram-mudalai` |
+| archived cousin (same shape, different bully or prop) | `singam-muyal`, `neela-nari` |
+| no Tamil parent — it is Aesop | `kakku-kudam`, `muyal-aamai`, `singam-eli`, `kakku-nari`, `kazhudhai-singa-udai` |
+| Panchantantrum by descent, text not in the corpus | `iru-punai-kurang` |
+
+Four of the ten we *thought* were Panchantantrum turned out to be Aesop with a
+Tamil accent: the thirsty crow, the race, the lion and the mouse, the crow and
+the fox. The archived tales that share their animals are different stories —
+the archived crow tales are the crow that killed a cobra and the crow that
+killed a camel, and neither is about thirst. They are labelled Aesop rather
+than given a fake Tamil grandfather, and the near-miss texts are kept in
+`sources/stories/` as candidate replacements.
+
+Two things we took from the archive, one thing we deliberately did not: the
+archived tortoise is carried on a **stick it bites** (our geese use a cloth, and
+the page art agrees with us), and it **falls and dies** (ours lands in soft
+grass). The stick would mean re-rendering four pages. The death is the
+grandmother-version softening — a choice, and a debatable one, so it is written
+down in `sourceNote` rather than passed off as what the tale says.
+
+### The register, and the lint that guards it
+
+The word bank went spoken Tamil ("the words a toddler actually hears, not the
+ones a textbook uses"). The books never followed it there, so for a long time
+the app had `ருசியா இருக்கு` on one screen and `அதின் நடுவில் நில்` on the next —
+and nobody noticed, because nothing looked.
+
+`npm run check` now lints every story page against the eleven shapes the
+written register leaves behind (`அதின்`, `-கிறேன்`, `நில்`, `வேண்டும்`, `மிகவும்`,
+`சிறு`, `உட்கார்ந்த`, `என்று`, `அருகே`, `-விட்டது`, and Latin letters inside a
+Tamil line), and each warning names the spoken form to use instead. Run against
+the previous file it finds **17 violations across 7 of those forms**, one of
+which was the English word "even" sitting inside a Tamil line — `சிறியவங்க even
+பெரிய உதவி செய்வாங்க`, which nobody could have said aloud.
+
+Story `ro` follows the word bank's plain-ASCII rule (`kaakkaai`, `aaranju`),
+not scholarly transliteration: the old file mixed diacritics into some lines and
+broke them in others (`aruḡē`, `ena kku siragu kaḷaḷ liyē`). Archived text is
+book Tamil on purpose — take the plot and the idiom from it, never the register.
+
 ### Pictures on every page
 
 A story page is the spoken Tamil line first and a picture second — so the
