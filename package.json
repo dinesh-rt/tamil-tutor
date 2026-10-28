@@ -7,7 +7,7 @@
   "scripts": {
     "start": "python3 tools/serve.py",
     "serve": "python3 tools/serve.py",
-    "check": "node tools/check-data.js",
+    "check": "node tools/check-data.js && node tools/audit-assets.js",
     "verify": "python3 tools/verify.py",
     "release": "python3 tools/verify.py --builds --stamp",
     "test": "node tools/run-tests.js",
@@ -16,6 +16,7 @@
     "bundle": "python3 tools/build-single-file.py",
     "portable": "python3 tools/build-portable.py",
     "site": "python3 tools/build-site.py",
-    "share": "python3 tools/serve.py 8090 dist/portable"
+    "share": "python3 tools/serve.py 8090 dist/portable",
+    "audit": "node tools/audit-assets.js"
   }
 }
