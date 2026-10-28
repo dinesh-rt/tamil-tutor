@@ -45,8 +45,25 @@ python3 tools/build-portable.py       # → dist/portable/ + zip: opens from fil
 
 npm run verify                        # syntax + word bank + bundle, one command
 npm run release                       # ...plus portable/offline builds and a fresh worker stamp
-npm test                              # all 9 browser suites in one go
+npm test                              # the browser suite in tools/tests/ (see below)
+npm run audit                         # asset audit: audio/pictures the data names, and orphans
 ```
+
+`npm test` runs real Chromium against the built `dist/portable/`. Be honest
+about what that means today: **one** suite exists (`smoke.js` — boot, word bank
+intact, shelf, a story page with its art decoded, clips actually served, service
+worker, console clean). `tools/run-tests.js` keeps a `PLAN` list of the fifteen
+areas with no browser coverage yet and prints it on every run, because the
+runner used to advertise fourteen suites and print *all suites green* while
+skipping all fourteen — a missing file was a `continue`. It now fails when an
+advertised suite is absent, when nothing runs, when no browser is installed, and
+when the port it is pointed at is not this app (it used to reuse port 8090
+whatever was sitting on it; an unrelated app owns that port on this machine).
+
+Two static layers are what actually guard every change: `npm run check`
+(data shape, register lint, asset audit) and `npm run verify` (every script
+parses, word bank sane, bundle builds). Neither touches behaviour — which is how
+a whole deployment shipped stories narrated by the phone instead of the pack.
 
 ---
 
